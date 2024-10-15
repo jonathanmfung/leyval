@@ -1,0 +1,60 @@
+{
+    "version": 9,
+    "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+    "cmakeMinimumRequired": {
+	"major": 3,
+	"minor": 30,
+	"patch": 0
+    },
+    "configurePresets": [
+	{
+	    "name": "config-base",
+	    "hidden": true,
+	    "displayName": "base Configuration",
+	    "description": "Default build using Unix Makefile generator",
+	    "generator": "Unix Makefiles",
+	    "binaryDir": "${sourceDir}/build/${presetName}",
+	    "cacheVariables": {
+		"CMAKE_C_COMPILER": "gcc",
+		"CMAKE_CXX_COMPILER": "g++"
+	    }
+	},
+	{
+            "name": "debug",
+            "displayName": "Config Debug",
+            "description": "Sets debug build type",
+            "inherits": "config-base",
+            "cacheVariables": {
+		"CMAKE_BUILD_TYPE": "Debug"
+            }
+	},
+	{
+            "name": "release",
+            "displayName": "Config Release",
+            "description": "Sets release build type",
+            "inherits": "config-base",
+            "cacheVariables": {
+		"CMAKE_BUILD_TYPE": "Release"
+            }
+	}
+    ],
+    "buildPresets": [
+	{
+            "name": "build-base",
+            "hidden": true,
+            "configurePreset": "debug"
+	},
+	{
+	    "name": "debug",
+	    "displayName": "Build Debug",
+	    "inherits": "build-base"
+	},
+	{
+	    "name": "release",
+	    "displayName": "Build Release",
+	    "inherits": "build-base",
+	    "configurePreset": "release"
+	}
+    ]
+
+}

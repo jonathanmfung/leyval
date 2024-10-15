@@ -1,0 +1,22 @@
+* Sources
+** An Empirical Analysis of the Limit Order Book and the Order Flow in the Paris Bourse
+ https://sci-hub.ru/10.1111/j.1540-6261.1995.tb05192.x
+#+begin_quote
+Investors can submit limit orders at any price...
+#+end_quote
+
+#+begin_quote
+The orders are stored and executed in the sequence that they are received by
+the market. Transactions occur when a trader on the opposite side of the
+market hits the quote. The limit orders for a specified quantity and price are
+stored and executed using time priority at a given price and price priority
+across prices.
+#+end_quote
+
+#+begin_quote
+“Market orders” in the Paris Bourse are not handled in the same way as in
+the NYSE. They are executed against the best price on the opposite side of the
+limit order book, but any excess that cannot be executed at that price is
+converted into a limit order at that price rather than being executed at less
+favorable prices by walking up (down) the book.
+#+end_quote
