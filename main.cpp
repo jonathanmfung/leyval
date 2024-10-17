@@ -1,9 +1,9 @@
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <compare>
 #include <concepts>
 #include <cstdlib>
-#include <chrono>
 
 #include <ctime>
 #include <format>
@@ -37,22 +37,21 @@ const auto now = std::chrono::steady_clock::now;
 using time_point = std::chrono::time_point<std::chrono::steady_clock>;
 
 template<typename T>
-concept IsOrder = std::three_way_comparable<T, std::strong_ordering> &&
-  requires(T a, T b) {
-  { a.volume } -> std::same_as<int&>;
-  { a.id } -> std::same_as<int&>;
-  { a.time} -> std::same_as<const time_point&>;
-  // { a <=> b } -> std::same_as<std::strong_ordering>;
-};
+concept IsOrder =
+  std::three_way_comparable<T, std::strong_ordering> && requires(T a, T b) {
+    { a.volume } -> std::same_as<int&>;
+    { a.id } -> std::same_as<int&>;
+    { a.time } -> std::same_as<time_point&>;
+  };
 
 template<IsOrder... Ts>
 using OrderVar = std::variant<Ts...>;
 
 struct MarketOrder
 {
-  int volume {};
-  int id {};
-  const time_point time {now()};
+  int volume{};
+  int id{};
+  time_point time{ now() };
 };
 std::strong_ordering
 operator<=>(const MarketOrder& mo1, const MarketOrder& mo2)
@@ -70,9 +69,9 @@ static_assert(IsOrder<MarketOrder>);
 
 struct LimitOrder
 {
-  int volume {};
-  int id {};
-  const time_point time {now()};
+  int volume{};
+  int id{};
+  time_point time{ now() };
   // NOTE valid Bid Limit Order price is less than current best (highest) Bid
   // Else is just a market order
   Money price;
@@ -105,26 +104,51 @@ enum class OrderDir
 
 ///////////////////////
 
-enum class MatchingSystem
+class MatchingSystem
 {
-  fifo,
-  pro_rata,
-  random_selection,
+public:
+  // MatchingSystem takes in MarketOrder + OrderDir and matches to LimitOrders
+  // in OrderBook. Adjusts OrderBook. Returns a std::pair<int volume, Money
+  // total_price> that the agent uses to adjust themselves.
+  enum Type
+  {
+    fifo,
+    pro_rata,
+    random_selection,
+  };
+
+  MatchingSystem(Type type)
+    : m_type{ type }
+  {
+  }
+
+  void operator()();
+
+  Type get_type() const { return m_type; }
+
+private:
+  Type m_type;
 };
 
 class OrderBook
 {
 public:
-
-  void add_bid(LimitOrder lo)
+  OrderBook(MatchingSystem matching_sys)
+    : m_matching_sys{ matching_sys }
   {
-    m_bids.push(lo);
   }
-  void add_ask(LimitOrder lo)  {
-    m_asks.push(lo);
-  }
+  void add_bid(LimitOrder lo) { m_bids.push(lo); }
+  void add_ask(LimitOrder lo) { m_asks.push(lo); }
 
-  [[nodiscard]] MatchingSystem get_matching_system() const {return m_matching_sys;}
+  // NOTE Assume
+  void receive_order(int agent_id, MarketOrder mo, OrderDir order_dir);
+
+  // TODO successful match is current agent.m_capital =-
+  // ob.current_best_price(order_ddir) * mo.volume
+  //      but need to do this so that current_best_price is always updated
+  //      (while --mo.volume > 0)
+
+  void receive_order(int agent_id, LimitOrder lo, OrderDir order_dir);
 
 private:
   // NOTE std::less means largest element is at front
@@ -137,9 +161,9 @@ private:
   AskQueue m_asks;
   MatchingSystem m_matching_sys;
 
-  [[nodiscard]] Money current_best_price(OrderDir od) const
+  [[nodiscard]] Money current_best_price(OrderDir order_dir) const
   {
-    switch (od) {
+    switch (order_dir) {
       case OrderDir::Bid:
         return m_bids.top().price;
       case OrderDir::Ask:
@@ -163,6 +187,7 @@ public:
   Agent(Money capital)
     : m_id{ new_id() }
     , m_capital{ capital }
+    , m_shares{ 0 }
   {
   }
 
@@ -174,46 +199,13 @@ public:
                     OrderDir order_dir)
   {
     std::visit(overloaded{ [this, &ob, &order_dir](MarketOrder& mo) {
-                            this->submit(std::move(ob), mo, order_dir);
+                            ob->receive_order(m_id, mo, order_dir);
                           },
                            [this, &ob, &order_dir](LimitOrder& lo) {
-                             this->submit(std::move(ob), lo, order_dir);
-                           }},
+                             ob->receive_order(m_id, lo, order_dir);
+                           } },
                order);
   }
-
-  void submit(std::unique_ptr<OrderBook> ob, [[maybe_unused]] MarketOrder mo, OrderDir order_dir)
-  {
-    switch (order_dir)
-      {
-      case OrderDir::Bid:
-	switch (ob->get_matching_system())
-	  {
-	  case MatchingSystem::fifo:
-	    break;
-	  case MatchingSystem::pro_rata:
-	    break;
-	  case MatchingSystem::random_selection:
-	    break;
-	  }
-	break;
-      case OrderDir::Ask:
-	break;
-      }
-  }
-  void submit(std::unique_ptr<OrderBook> ob, LimitOrder lo, OrderDir order_dir)
-  {
-    switch (order_dir)
-      {
-      case OrderDir::Bid:
-	ob->add_bid(lo);
-	break;
-      case OrderDir::Ask:
-	ob->add_ask(lo);
-	break;
-      }
-  }
-
 
   // Do proper sell/buy arithmetic to this agent.
 
@@ -223,14 +215,22 @@ public:
   //   submit(LimitOrder, ...)
 
 private:
-  int m_id;
-  Money m_capital;
+  int m_id{};
+  Money m_capital{};
+  int m_shares{};
 
   int new_id()
   {
     static int id{ 0 };
     return ++id;
   }
+};
+
+///////////////////////
+class Exchange {
+private:
+  OrderBook m_order_book;
+  std::vector<Agent> m_agents;
 };
 
 ///////////////////////
@@ -241,7 +241,8 @@ main()
   Agent a1{ 100 };
   Agent a2{ 80 };
 
-  OrderBook ob{};
+  const MatchingSystem ms{ MatchingSystem::fifo };
+  OrderBook ob{ ms };
 
   return 0;
 }
