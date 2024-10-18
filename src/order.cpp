@@ -1,30 +1,39 @@
 #include "order.hpp"
 
 std::strong_ordering
-operator<=>(const MarketOrder& mo1, const MarketOrder& mo2)
+operator<=>(const MarketOrderReq& mor1, const MarketOrderReq& mor2)
 {
-  return mo1.time <=> mo2.time;
+  return mor1.timestamp <=> mor2.timestamp;
 }
 
 bool
-operator==(const MarketOrder& mo1, const MarketOrder& mo2)
+operator==(const MarketOrderReq& mor1, const MarketOrderReq& mor2)
 {
-  return mo1.id == mo2.id;
+  return mor1.agent_id == mor2.agent_id;
 }
 
-static_assert(IsOrder<MarketOrder>);
+static_assert(IsOrderReq<MarketOrderReq>);
+
+////////////////////////////////////////////////////////////////////////////////
 
 std::strong_ordering
-operator<=>(const LimitOrder& lo1, const LimitOrder& lo2)
+operator<=>(const LimitOrderVal& lov1, const LimitOrderVal& lov2)
 {
-  return std::tie(lo1.time, lo1.price) <=> std::tie(lo2.time, lo2.price);
+  return lov1.timestamp <=> lov2.timestamp;
+}
+
+std::strong_ordering
+operator<=>(const LimitOrderReq& lor1, const LimitOrderReq& lor2)
+{
+  return std::tie(lor1.timestamp, lor1.price) <=>
+         std::tie(lor2.timestamp, lor2.price);
 }
 
 bool
-operator==(const LimitOrder& lo1, const LimitOrder& lo2)
+operator==(const LimitOrderReq& lor1, const LimitOrderReq& lor2)
 {
-  return std::tie(lo1.time, lo1.price) == std::tie(lo2.time, lo2.price);
-  // return lo1.id == lo2.id;
+  return std::tie(lor1.timestamp, lor1.price) ==
+         std::tie(lor2.timestamp, lor2.price);
 }
 
-static_assert(IsOrder<LimitOrder>);
+static_assert(IsOrderReq<LimitOrderReq>);

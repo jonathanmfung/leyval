@@ -1,61 +1,62 @@
 #pragma once
 
-#include <queue>
-#include <ranges>
-#include <vector>
+#include <map>
 
-#include "matching_system.hpp"
 #include "order.hpp"
 
 class OrderBook
 {
 public:
-  OrderBook(MatchingSystem matching_sys)
-    : m_matching_sys{ matching_sys }
-  {
-  }
-  void add_bid(LimitOrder lo) { m_bids.push(lo); }
-  void add_ask(LimitOrder lo) { m_asks.push(lo); }
+  OrderBook() = default;
 
   // NOTE Assume that any order is valid (i.e. agent has sufficient capital and
   // shares)
-  void receive_order(int agent_id, MarketOrder mo, OrderDir order_dir);
-  void receive_order(int agent_id, LimitOrder lo, OrderDir order_dir);
 
-  [[nodiscard]] Money current_best_price(OrderDir order_dir) const
+  [[nodiscard]] Money current_best_price(OrderDir order_dir) const;
+  [[nodiscard]] Money quoted_spread() const;
+
+  // Returns pair of iterators to range of best-priced orders.
+  // These are able to mutate the underlying Bid/AskContainer.
+  auto orders_at_best_price(OrderDir order_dir)
+  {
+    const Money best_price{ current_best_price(order_dir) };
+
+    // TODO: initial definition because don't know how to write type and to
+    // avoid "control reaches end of non-void function" On the Ask case, this is
+    // double-running equal_range.
+    decltype(m_bids.equal_range(best_price)) best_orders{};
+    switch (order_dir) {
+      case OrderDir::Bid:
+        break;
+      case OrderDir::Ask:
+        best_orders = m_asks.equal_range(best_price);
+    }
+    return best_orders;
+  }
+
+  void insert(LimitOrder lo);
+
+  // order_it is iterator to m_bids/asks
+  template<typename T>
+  T remove_order(T order_it, OrderDir order_dir)
   {
     switch (order_dir) {
       case OrderDir::Bid:
-        return m_bids.top().price;
+        return m_bids.erase(order_it);
       case OrderDir::Ask:
-        return m_asks.top().price;
+        return m_asks.erase(order_it);
+      default:
+        __builtin_unreachable();
     }
   }
 
-  [[nodiscard]] Money quoted_spread()
-  {
-    // Expressed in %.
-    // (x-y)/midpoint == 2(x-y)/(x+y)
-    const Money ask{ current_best_price(OrderDir::Ask) };
-    const Money bid{ current_best_price(OrderDir::Bid) };
-    return 100 * 2 * ((ask - bid) / (ask + bid));
-  }
-
-  auto orders_at_best_price(OrderDir order_dir)
-  {
-    const Money best_price{ current_best_price(OrderDir::Ask) };
-    return std::ranges::views::filter(m_asks,
-      [best_price](const LimitOrder& lo) { return lo.price == best_price; });
-  }
-
 private:
-  // NOTE std::less means largest element is at front
-  using BidQueue = std::
-    priority_queue<LimitOrder, std::vector<LimitOrder>, std::less<LimitOrder>>;
-  using AskQueue = std::priority_queue<LimitOrder,
-                                       std::vector<LimitOrder>,
-                                       std::greater<LimitOrder>>;
-  BidQueue m_bids;
-  AskQueue m_asks;
-  MatchingSystem m_matching_sys;
+  // NOTE std::lgreater means largest element is at beginning
+  // This is an attempt to push frequent values to front of iteration. (bid ->
+  // larger)
+  using BidContainer = std::multimap<Money, LimitOrderVal, std::greater<>>;
+  using AskContainer = std::multimap<Money, LimitOrderVal, std::less<>>;
+
+  BidContainer m_bids;
+  AskContainer m_asks;
 };

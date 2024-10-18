@@ -1,13 +1,23 @@
 #pragma once
 
 #include "order.hpp"
+#include "order_book.hpp"
+
+struct TransactionRequest
+{
+  int bidder_id;
+  int asker_id;
+  int volume;
+  Money price;
+};
 
 class MatchingSystem
 {
 public:
   // MatchingSystem takes in MarketOrder + OrderDir and matches to LimitOrders
-  // in OrderBook. Adjusts OrderBook. Returns a List of [Transaction (Contract)] for the exchange to execute.
-  // Since the other side (LOs) can be different agents.
+  // in OrderBook. Adjusts OrderBook. Returns a List of [Transaction (Contract)]
+  // for the exchange to execute. Since the other side (LOs) can be different
+  // agents.
   enum Type
   {
     fifo,
@@ -20,9 +30,10 @@ public:
   {
   }
 
-  void operator()(MarketOrder mo, OrderDir order_dir);
+  std::vector<TransactionRequest> operator()(MarketOrderReq mo,
+                                             OrderBook order_book);
 
-  Type get_type() const { return m_type; }
+  [[nodiscard]] Type get_type() const { return m_type; }
 
 private:
   Type m_type;

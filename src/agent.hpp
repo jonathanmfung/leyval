@@ -1,16 +1,10 @@
 #pragma once
 
-#include <chrono>
+#include <format>
 
 #include "order.hpp"
 #include "order_book.hpp"
-
-// https://en.cppreference.com/w/cpp/utility/variant/visit
-template<class... Ts>
-struct overloaded : Ts...
-{
-  using Ts::operator()...;
-};
+#include "overloaded.hpp"
 
 class Agent
 {
@@ -23,32 +17,33 @@ public:
   }
 
   // generate instance of variant: https://stackoverflow.com/a/74303228
-  std::pair<Order_t, OrderDir> generate_order(Order_t, OrderDir);
+  // NOTE empty vector means agent is choosing to noop
+  [[nodiscard]] std::vector<OrderReq_t> generate_order(
+    const OrderBook& order_book) const;
 
-  void submit_order(std::unique_ptr<OrderBook> ob,
-                    Order_t order,
-                    OrderDir order_dir);
+  void buy(const int volume, const Money total_price);
+  void sell(const int volume, const Money total_price);
 
-  void buy(const int volume, const Money total_price){
-    m_shares += volume;
-    m_capital -= total_price;
-  }
-
-  void sell(const int volume, const Money total_price){
-    m_shares -= volume;
-    m_capital += total_price;
-  }
-
-  int get_id() const {return m_id;}
+  [[nodiscard]] int get_id() const { return m_id; }
 
 private:
   int m_id{};
   Money m_capital{};
   int m_shares{};
 
-  int new_id()
+  static int new_id()
   {
     static int id{ 0 };
     return ++id;
+  }
+};
+
+template<>
+struct std::formatter<Agent> : std::formatter<std::string>
+{
+  auto format(const Agent& agent, format_context& ctx) const
+  {
+    return formatter<string>::format(std::format("Agent {}", agent.get_id()),
+                                     ctx);
   }
 };

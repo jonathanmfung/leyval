@@ -1,14 +1,44 @@
+#include <algorithm>
+
 #include "order_book.hpp"
 
-void OrderBook::receive_order([[maybe_unused]] int agent_id, [[maybe_unused]]MarketOrder mo, [[maybe_unused]]OrderDir order_dir){
-  // TODO: Implement receive_order(MarketOrder)
-};
+[[nodiscard]] Money
+OrderBook::current_best_price(OrderDir order_dir) const
+{
+  Money best_price{};
+  switch (order_dir) {
+    // NOTE Using min_element since multimaps are reveresed (bid =
+    // std::greater, ask = std::less)
+    case OrderDir::Bid:
+      best_price = std::ranges::min_element(m_bids)->first;
+      break;
+    case OrderDir::Ask:
+      best_price = std::ranges::min_element(m_asks)->first;
+      break;
+  }
+  return best_price;
+}
 
-void OrderBook::receive_order([[maybe_unused]]int agent_id, [[maybe_unused]]LimitOrder lo, [[maybe_unused]]OrderDir order_dir){
-  // TODO: Implement receive_order(LimitOrder)
-};
+[[nodiscard]] Money
+OrderBook::quoted_spread() const
+{
+  // Expressed in %.
+  // (x-y)/midpoint == 2(x-y)/(x+y)
+  const Money ask{ current_best_price(OrderDir::Ask) };
+  const Money bid{ current_best_price(OrderDir::Bid) };
+  return 100 * 2 * ((ask - bid) / (ask + bid));
+}
 
-  // NOTE: successful match is current agent.m_capital =-
-  // ob.current_best_price(order_ddir) * mo.volume
-  //      but need to do this so that current_best_price is always updated
-  //      (while --mo.volume > 0)
+void
+OrderBook::insert(LimitOrder lo)
+{
+  // TODO: Check Implementation
+  switch (lo.second.order_dir) {
+    case OrderDir::Bid:
+      m_bids.insert(lo);
+      break;
+    case OrderDir::Ask:
+      m_asks.insert(lo);
+      break;
+  }
+}

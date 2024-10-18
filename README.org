@@ -20,3 +20,101 @@ limit order book, but any excess that cannot be executed at that price is
 converted into a limit order at that price rather than being executed at less
 favorable prices by walking up (down) the book.
 #+end_quote
+
+* ~clang-tidy~
+#+begin_src sh :results output :async
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+clang-tidy -checks='bugprone*, cppcoreguidelines* ,clang-analyzer* ,modernize* ,readability* ,\
+	   -modernize-use-trailing-return-type, -readability-avoid-const-params-in-decls, \
+	   -readability-identifier-length' \
+	   src/*
+clang-format -i --style=mozilla src/*
+#+end_src
+
+#+RESULTS:
+#+begin_example
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/jonat/cpp/order_book
+/home/jonat/cpp/order_book/src/agent.cpp:6:8: warning: method 'generate_order' can be made static [readability-convert-member-functions-to-static]
+    6 | Agent::generate_order(const OrderBook& order_book) const
+      |        ^                                           ~~~~~
+/home/jonat/cpp/order_book/src/agent.cpp:16:12: warning: 2 adjacent parameters of 'buy' of similar type are easily swapped by mistake [bugprone-easily-swappable-parameters]
+   16 | Agent::buy(const int volume, const Money total_price)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jonat/cpp/order_book/src/agent.cpp:16:22: note: the first parameter in the range is 'volume'
+   16 | Agent::buy(const int volume, const Money total_price)
+      |                      ^~~~~~
+/home/jonat/cpp/order_book/src/agent.cpp:16:42: note: the last parameter in the range is 'total_price'
+   16 | Agent::buy(const int volume, const Money total_price)
+      |                                          ^~~~~~~~~~~
+/home/jonat/cpp/order_book/src/agent.cpp:16:12: note: after resolving type aliases, 'const int' and 'const Money' are the same
+   16 | Agent::buy(const int volume, const Money total_price)
+      |            ^
+/home/jonat/cpp/order_book/src/agent.cpp:22:13: warning: 2 adjacent parameters of 'sell' of similar type are easily swapped by mistake [bugprone-easily-swappable-parameters]
+   22 | Agent::sell(const int volume, const Money total_price)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jonat/cpp/order_book/src/agent.cpp:22:23: note: the first parameter in the range is 'volume'
+   22 | Agent::sell(const int volume, const Money total_price)
+      |                       ^~~~~~
+/home/jonat/cpp/order_book/src/agent.cpp:22:43: note: the last parameter in the range is 'total_price'
+   22 | Agent::sell(const int volume, const Money total_price)
+      |                                           ^~~~~~~~~~~
+/home/jonat/cpp/order_book/src/agent.cpp:22:13: note: after resolving type aliases, 'const int' and 'const Money' are the same
+   22 | Agent::sell(const int volume, const Money total_price)
+      |             ^
+/home/jonat/cpp/order_book/src/agent.hpp:19:7: warning: member initializer for 'm_shares' is redundant [cppcoreguidelines-use-default-member-init,modernize-use-default-member-init]
+   19 |     , m_shares{ 0 }
+      |       ^~~~~~~~~~~~~
+/home/jonat/cpp/order_book/src/agent.hpp:38:7: warning: method 'new_id' can be made static [readability-convert-member-functions-to-static]
+   38 |   int new_id()
+      |       ^
+      |   static
+/home/jonat/cpp/order_book/src/exchange.hpp:13:12: warning: pass by value and use std::move [modernize-pass-by-value]
+    4 |
+    5 | #include "agent.hpp"
+    6 | #include "matching_system.hpp"
+    7 | #include "order.hpp"
+    8 | #include "order_book.hpp"
+    9 |
+   10 | class Exchange
+   11 | {
+   12 | public:
+   13 |   Exchange(OrderBook order_book,
+      |            ^
+   14 |            std::vector<Agent> agents,
+   15 |            MatchingSystem matching_sys)
+   16 |     : m_order_book{ order_book }
+      |                    std::move(  )
+/home/jonat/cpp/order_book/src/exchange.hpp:46:51: warning: initializer for member 'm_current_order_requests' is redundant [readability-redundant-member-init]
+   46 |   std::vector<OrderReq_t> m_current_order_requests{};
+      |                                                   ^~
+/home/jonat/cpp/order_book/src/main.cpp:11:13: warning: 100 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   11 |   Agent a1{ 100 };
+      |             ^
+/home/jonat/cpp/order_book/src/main.cpp:12:13: warning: 80 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   12 |   Agent a2{ 80 };
+      |             ^
+/home/jonat/cpp/order_book/src/matching_system.cpp:13:22: warning: Value stored to '_' during its initialization is never read [clang-analyzer-deadcode.DeadStores]
+   13 |       for (const int _ : std::views::iota(1, mor.volume)) {
+      |                      ^ ~
+/home/jonat/cpp/order_book/src/matching_system.cpp:13:22: note: Value stored to '_' during its initialization is never read
+   13 |       for (const int _ : std::views::iota(1, mor.volume)) {
+      |                      ^ ~
+/home/jonat/cpp/order_book/src/matching_system.cpp:29:13: warning: do not use 'else' after 'break' [readability-else-after-return]
+   29 |           } else {
+      |             ^~~~~~
+   30 |             ++it;
+      |             ~~~~~
+   31 |           };
+      |           ~
+/home/jonat/cpp/order_book/src/matching_system.cpp:45:5: warning: switch has 2 consecutive identical branches [bugprone-branch-clone]
+   45 |     case pro_rata:
+      |     ^
+/home/jonat/cpp/order_book/src/matching_system.cpp:54:12: note: last of these clones ends here
+   54 |       break;
+      |            ^
+/home/jonat/cpp/order_book/src/order_book.cpp:29:10: warning: 100 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   29 |   return 100 * 2 * ((ask - bid) / (ask + bid));
+      |          ^
+#+end_example
