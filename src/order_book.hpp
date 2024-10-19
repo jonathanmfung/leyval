@@ -24,7 +24,7 @@ public:
     // TODO: initial definition because don't know how to write type and to
     // avoid "control reaches end of non-void function" On the Ask case, this is
     // double-running equal_range.
-    decltype(m_bids.equal_range(best_price)) best_orders{};
+    auto best_orders {m_bids.equal_range(best_price)};
     switch (order_dir) {
       case OrderDir::Bid:
         break;
@@ -45,7 +45,7 @@ public:
         return m_bids.erase(order_it);
       case OrderDir::Ask:
         return m_asks.erase(order_it);
-      default:
+      default:			// TODO: document using `unreachable`
         __builtin_unreachable();
     }
   }
@@ -59,4 +59,17 @@ private:
 
   BidContainer m_bids;
   AskContainer m_asks;
+
+  friend struct std::formatter<OrderBook>;
+};
+
+template<>
+struct std::formatter<OrderBook> : std::formatter<std::string>
+{
+  auto format(const OrderBook& order_book, format_context& ctx) const
+  {
+    // TODO Format # of each Bid/AskContainer (need to add public method)
+    return formatter<string>::format(
+				     std::format("OrderBook(Bids: (#{}, ${}), Asks: (#{}, ${}))", order_book.m_bids.size(), order_book.current_best_price(OrderDir::Bid), order_book.m_asks.size(), order_book.current_best_price(OrderDir::Ask)), ctx);
+  }
 };

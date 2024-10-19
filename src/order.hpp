@@ -13,6 +13,8 @@ using Money = int;
 const auto now = std::chrono::steady_clock::now;
 using time_point = std::chrono::time_point<std::chrono::steady_clock>;
 
+static const time_point INIT_TS {now()};
+
 enum class OrderDir
 {
   Bid,
@@ -66,7 +68,7 @@ struct std::formatter<MarketOrderReq> : std::formatter<std::string>
                   mor.agent_id,
                   mor.volume,
                   mor.order_dir,
-                  mor.timestamp.time_since_epoch()),
+                  std::chrono::duration_cast<std::chrono::microseconds>(mor.timestamp - INIT_TS)),
       ctx);
   }
 };
@@ -113,11 +115,12 @@ struct std::formatter<LimitOrderReq> : std::formatter<std::string>
   auto format(const LimitOrderReq& lor, format_context& ctx) const
   {
     return formatter<string>::format(
-      std::format("(LOR: {{a_id: {}, vol: {}, {}, {}}})",
+      std::format("(LOR: {{a_id: {}, prc: {}, vol: {}, {}, {}}})",
                   lor.agent_id,
+		  lor.price,
                   lor.volume,
                   lor.order_dir,
-                  lor.timestamp.time_since_epoch()),
+                  std::chrono::duration_cast<std::chrono::microseconds>(lor.timestamp - INIT_TS)),
       ctx);
   }
 };

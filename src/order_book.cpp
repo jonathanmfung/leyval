@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 
 #include "order_book.hpp"
 
@@ -16,6 +17,9 @@ OrderBook::current_best_price(OrderDir order_dir) const
       best_price = std::ranges::min_element(m_asks)->first;
       break;
   }
+  if (!(0 < best_price))
+    throw std::domain_error(std::format("best_price must be greater than 0 ({})", order_dir));
+
   return best_price;
 }
 
@@ -32,7 +36,7 @@ OrderBook::quoted_spread() const
 void
 OrderBook::insert(LimitOrder lo)
 {
-  // TODO: Check Implementation
+  // TODO: Check this implementation
   switch (lo.second.order_dir) {
     case OrderDir::Bid:
       m_bids.insert(lo);

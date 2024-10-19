@@ -1,3 +1,6 @@
+#include <cassert>
+#include <format>
+#include <iostream>
 #include <ranges>
 
 #include "matching_system.hpp"
@@ -5,15 +8,22 @@
 std::vector<TransactionRequest>
 MatchingSystem::operator()(MarketOrderReq mor, OrderBook order_book)
 {
+  std::cout << "MS Invoke\n";
+  assert(mor.volume > 0 && "MarketOrderReq must be positive");
+  // TODO check mor.volume against order_book.m_bids/asks total size
   std::vector<TransactionRequest> trans_reqs{};
   switch (m_type) {
     case fifo: {
-
       // Each share traded needs to recalculate the best price
-      for (const int _ : std::views::iota(1, mor.volume)) {
+      for (const int i : std::views::iota(1, mor.volume)) {
+        std::cout << std::format("MS::(FIFO) Loop {}\n", i);
+
         auto best_orders{ order_book.orders_at_best_price(mor.order_dir) };
         Money best_price =
-          best_orders.first->first; // best_orders.first_iterator->key
+          best_orders.first->first; // best_orders.first_iterator->key (arbitrarily use first iterator)
+
+	std::cout << std::format("best_orders.first->second: a_id: {}, {}, vol: {}\n", best_orders.first->second.agent_id, best_orders.first->second.order_dir, best_orders.first->second.volume);
+        std::cout << std::format("MS:: best_price: {}\n", best_price);
 
         // Pop earliest-timestamp LimitOrderVal at best_price
         auto early_comp = [](const LimitOrder& lo1, const LimitOrder& lo2) {
@@ -22,6 +32,9 @@ MatchingSystem::operator()(MarketOrderReq mor, OrderBook order_book)
 
         auto earliest_best_order{ std::min_element(
           best_orders.first, best_orders.second, early_comp) };
+
+	std::cout << std::format("earliest_best_order->second.agent_id: {}\n", earliest_best_order->second.agent_id);
+
         for (auto it = best_orders.first; it != best_orders.second;) {
           if (it == earliest_best_order) {
             it = order_book.remove_order(it, mor.order_dir);
@@ -32,10 +45,11 @@ MatchingSystem::operator()(MarketOrderReq mor, OrderBook order_book)
         }
 
         trans_reqs.emplace_back(
-          TransactionRequest{ mor.agent_id,
-                              earliest_best_order->second.agent_id,
-                              earliest_best_order->second.volume,
-                              best_price });
+          TransactionRequest(mor.agent_id,
+                             earliest_best_order->second.agent_id,
+                             earliest_best_order->second.volume,
+                             best_price,
+                             mor.order_dir));
       }
       break;
     }
