@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "order.hpp"
 #include "order_book.hpp"
 
 [[nodiscard]] Money
@@ -18,7 +19,8 @@ OrderBook::current_best_price(OrderDir order_dir) const
       break;
   }
   if (!(0 < best_price))
-    throw std::domain_error(std::format("best_price must be greater than 0 ({})", order_dir));
+    throw std::domain_error(
+      std::format("best_price must be greater than 0 ({})", order_dir));
 
   return best_price;
 }
@@ -33,6 +35,19 @@ OrderBook::quoted_spread() const
   return 100 * 2 * ((ask - bid) / (ask + bid));
 }
 
+[[nodiscard]] int
+OrderBook::num_orders(OrderDir order_dir) const
+{
+  switch (order_dir) {
+    case OrderDir::Bid:
+      return m_bids.size();
+    case OrderDir::Ask:
+      return m_asks.size();
+    default:
+      throw OrderDirInvalidValue("OrderBook::num_orders");
+  }
+}
+
 void
 OrderBook::insert(LimitOrder lo)
 {
@@ -44,5 +59,7 @@ OrderBook::insert(LimitOrder lo)
     case OrderDir::Ask:
       m_asks.insert(lo);
       break;
+    default:
+      throw OrderDirInvalidValue("OrderBook::insert");
   }
 }

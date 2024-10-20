@@ -14,6 +14,7 @@ public:
 
   [[nodiscard]] Money current_best_price(OrderDir order_dir) const;
   [[nodiscard]] Money quoted_spread() const;
+  [[nodiscard]] int num_orders(OrderDir order_dir) const;
 
   // Returns pair of iterators to range of best-priced orders.
   // These are able to mutate the underlying Bid/AskContainer.
@@ -21,17 +22,14 @@ public:
   {
     const Money best_price{ current_best_price(order_dir) };
 
-    // TODO: initial definition because don't know how to write type and to
-    // avoid "control reaches end of non-void function" On the Ask case, this is
-    // double-running equal_range.
-    auto best_orders {m_bids.equal_range(best_price)};
     switch (order_dir) {
       case OrderDir::Bid:
-        break;
+        return m_bids.equal_range(best_price);
       case OrderDir::Ask:
-        best_orders = m_asks.equal_range(best_price);
+        return m_asks.equal_range(best_price);
+      default:
+        throw OrderDirInvalidValue("OrderBook::orders_at_best_price");
     }
-    return best_orders;
   }
 
   void insert(LimitOrder lo);
@@ -45,8 +43,8 @@ public:
         return m_bids.erase(order_it);
       case OrderDir::Ask:
         return m_asks.erase(order_it);
-      default:			// TODO: document using `unreachable`
-        __builtin_unreachable();
+      default:
+        throw OrderDirInvalidValue("OrderBook::remove_order");
     }
   }
 

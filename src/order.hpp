@@ -20,6 +20,16 @@ enum class OrderDir
   Bid,
   Ask,
 };
+
+class OrderDirInvalidValue : public std::invalid_argument
+{
+public:
+  explicit OrderDirInvalidValue(const std::string& what_arg)
+    : std::invalid_argument(what_arg)
+  {
+  }
+};
+
 template<>
 struct std::formatter<OrderDir> : std::formatter<std::string>
 {

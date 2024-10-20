@@ -2,6 +2,7 @@
 
 #include "order.hpp"
 #include "order_book.hpp"
+#include <stdexcept>
 
 struct TransactionRequest
 {
@@ -27,6 +28,8 @@ struct TransactionRequest
         bidder_id = provider_agent;
         asker_id = initiator_agent;
         break;
+      default:
+        throw OrderDirInvalidValue("TransactionRequest()");
     }
   }
 };
@@ -78,8 +81,8 @@ public:
         return "Pro_Rata";
       case random_selection:
         return "RSS";
-    default:
-      __builtin_unreachable();
+      default:
+        throw std::invalid_argument("MatchingSystem::get_type_string()");
     }
   }
 
