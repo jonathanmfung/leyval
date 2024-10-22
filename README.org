@@ -20,6 +20,105 @@ limit order book, but any excess that cannot be executed at that price is
 converted into a limit order at that price rather than being executed at less
 favorable prices by walking up (down) the book.
 #+end_quote
+** Market Simulations with a Matching Engine
+https://open.uct.ac.za/items/574390a1-2466-4128-8920-6261505220e0
+
+Julia ABM Logic: https://github.com/IvanJericevich/IJPCTG-ABMCoinTossX/blob/main/Scripts/ABMVolatilityAuctionProxy.jl
+[[./.notes/ABMVolatilityAuctionProxy.jl]]
+
+#+begin_quote page 5
+The matching algorithms decide the efficiency and robustness of the order matching system. Exchanges aim to prioritize trades in a way that benefits buyers and sellers equally so as to maximize order volume — the lifeblood of the exchange.
+#+end_quote
+
+#+begin_quote page 4
+We define limit order imbalance ρ(t){...}
+#+end_quote
+
+#+begin_quote page 63
+The market consists of N_LT Liquidity Takers (LT) that only submit market orders and N_LP Liquidity Providers (LP) that only submit limit orders.
+#+end_quote
+
+#+begin_quote page 65
+liquidity providers will on average provide liquidity to the side with less liquidity and thus stabilise the order book.
+#+end_quote
+
+#+begin_quote page 77
+Calibration for values of \(N, \delta, \kappa, \nu, \sigma\)
+#+end_quote
+#+begin_quote page 100
+Agent-based model implementation
+#+end_quote
+*** For Any Agent
+Sample from power law distribution: https://stats.stackexchange.com/questions/173242/random-sample-from-power-law-distribution
+
+\[ \text{Volume:  } f(x) = \begin{cases}
+       \frac{\alpha x_m^\alpha}{x^{\alpha+1}} & x \geq x_m \\
+      0 & x < x_m
+   \end{cases} \]
+
+\(x_m := \text{lower bound  of the volume size}\)
+For LTs, is from a function. For LPs, is fixed at 10.
+
+\[ \text{Shape Parameter:  } \alpha = \begin{cases}
+      1 - \rho/\nu & \text{Sell MO, Ask LO} \\
+      1 + \rho/\nu & \text{Buy MO, Bid LO}
+   \end{cases} \]
+
+\(\rho := \text{OrderBook Imbalance [(bid size - ask size) / total]} \)
+
+TBD: \(\nu := \text{ABM parameter — scaling factor for power-law volume order size}\)
+
+NOT EXACTLY SURE
+\(m := \text{mid-price}\)
+\(m = (\text{best ask} + \text{best bid})/2 \)
+
+*** For Liquidity Takers (MarketOrders)
+**** Fundamentalist
+\[ \text{Decision:  } D^F = \begin{cases}
+       \text{sell} & f < m \\
+       \text{buy} & f > m
+   \end{cases} \]
+
+\(f := \text{fundamental value for agent} \)
+\(f = m_0\exp{x}, x \sim \mathcal{N}(0, \sigma^2) \)
+
+\(m_0 := \text{mid-price at start of day}\)
+\(\sigma := \text{fundamentalists’ value perception uncertainty for the trading day}\)
+
+
+\[ x_m^F = \begin{cases}
+       20 & |f - m| \leq \delta m \\
+       50 & |f - m| > \delta m
+   \end{cases} \]
+**** Chartists
+\[ \text{Decision:  } D^C = \begin{cases}
+       \text{sell} & m < \bar{m} \\
+       \text{buy} & m > \bar{m}
+   \end{cases} \]
+
+\(\bar{m}(t) := \text{Exponential Moving Average (EMA) of mid-price} \)
+\(\bar{m}(t) = \bar{m}(t') + \lambda(m(t) - \bar{m}(t')) \)
+\(t' := \text{time point of when agent made last decision} \)
+\(\lambda = 1 - \exp{(-\Delta t / \tau)} \)
+\(\Delta t = t - t'\)
+\( \tau := \text{time constant for agent's mean inter-arrival time of decision time} \)
+
+\[ x_m^C = \begin{cases}
+       20 & |m - \bar{m}| \leq \delta m \\
+       50 & |m - \bar{m}| > \delta m
+   \end{cases} \]
+
+*** For Liquidity Providers (LimitOrders)
+\(\theta := \text{Probability of Placing Ask}\)
+\(\theta = \frac{1}{2}(\rho + 1)\)
+
+\(p := \text{placement of limit order}\)
+\[ p = \begin{cases}
+       \text{best bid} + 1 + \lfloor\eta\rfloor & \text{asks} \\
+       \text{best ask} - 1 - \lfloor\eta\rfloor & \text{bids}
+   \end{cases} \]
+
+\(p := \text{placement of limit order}\)
 
 * ~clang-tidy~
 #+begin_src sh :results output :async
