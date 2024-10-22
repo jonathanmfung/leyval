@@ -68,8 +68,8 @@ public:
   {
   }
 
-  std::vector<TransactionRequest> operator()(MarketOrderReq mo,
-                                             OrderBook order_book);
+  std::vector<TransactionRequest> operator()(const MarketOrderReq mo,
+                                             OrderBook& order_book);
 
   [[nodiscard]] Type get_type() const { return m_type; }
   [[nodiscard]] std::string get_type_string() const

@@ -36,6 +36,7 @@ public:
   // - current_order_requests.clear()
   // clang-format on
 
+  // TODO: Add static tick count to help calculate agent's inter-arrival time
   void run();
 
 private:

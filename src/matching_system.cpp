@@ -6,11 +6,20 @@
 #include "matching_system.hpp"
 
 std::vector<TransactionRequest>
-MatchingSystem::operator()(MarketOrderReq mor, OrderBook order_book)
+MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
 {
   std::cout << "MS Invoke\n";
   assert(mor.volume > 0 && "MarketOrderReq must be positive");
-  // TODO check mor.volume against order_book.m_bids/asks total size
+  // TODO: This falsely throws during an empty init.
+  // if (mor.volume > order_book.num_orders(!mor.order_dir))
+  //   throw std::logic_error(
+  //     std::format("MarketOrderReq.volume({}, {}) must be not greater than
+  //     OrderBook's {}({})",
+  //                 mor.volume,
+  //                 mor.order_dir,
+  //                 !mor.order_dir,
+  //                 order_book.num_orders(!mor.order_dir)));
+
   std::vector<TransactionRequest> trans_reqs{};
   switch (m_type) {
     case fifo: {
@@ -20,9 +29,14 @@ MatchingSystem::operator()(MarketOrderReq mor, OrderBook order_book)
 
         auto best_orders{ order_book.orders_at_best_price(mor.order_dir) };
         Money best_price =
-          best_orders.first->first; // best_orders.first_iterator->key (arbitrarily use first iterator)
+          best_orders.first->first; // best_orders.first_iterator->key
+                                    // (arbitrarily use first iterator)
 
-	std::cout << std::format("best_orders.first->second: a_id: {}, {}, vol: {}\n", best_orders.first->second.agent_id, best_orders.first->second.order_dir, best_orders.first->second.volume);
+        std::cout << std::format(
+          "best_orders.first->second: a_id: {}, {}, vol: {}\n",
+          best_orders.first->second.agent_id,
+          best_orders.first->second.order_dir,
+          best_orders.first->second.volume);
         std::cout << std::format("MS:: best_price: {}\n", best_price);
 
         // Pop earliest-timestamp LimitOrderVal at best_price
@@ -33,7 +47,8 @@ MatchingSystem::operator()(MarketOrderReq mor, OrderBook order_book)
         auto earliest_best_order{ std::min_element(
           best_orders.first, best_orders.second, early_comp) };
 
-	std::cout << std::format("earliest_best_order->second.agent_id: {}\n", earliest_best_order->second.agent_id);
+        std::cout << std::format("earliest_best_order->second.agent_id: {}\n",
+                                 earliest_best_order->second.agent_id);
 
         for (auto it = best_orders.first; it != best_orders.second;) {
           if (it == earliest_best_order) {

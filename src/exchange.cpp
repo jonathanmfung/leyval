@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "exchange.hpp"
+#include "overloaded.hpp"
 
 void
 Exchange::run()
@@ -62,7 +63,7 @@ Exchange::find_agent(const int agent_id)
     std::cout << std::format("Exchange::find_agent - Found {}\n", *res);
     return std::make_optional(std::ref(*res));
   }
-  std::cout << std::format("Exchange::find_agent - Found NONE");
+  std::cout << std::format("Exchange::find_agent - Found NONE\n");
   return std::nullopt;
 }
 
@@ -76,7 +77,10 @@ Exchange::execute(TransactionRequest trans)
     asker->get().sell(trans.volume, trans.price);
     bidder->get().buy(trans.volume, trans.price);
   } else {
-    throw std::logic_error("Exchange::execute could not find asker ior bidder");
+    throw std::logic_error(
+      std::format("Exchange::execute could not find asker ({}) ior bidder ({})",
+                  trans.asker_id,
+                  trans.bidder_id));
     // assert(false && "Exchange::execute could not find asker ior bidder");
   }
 }
