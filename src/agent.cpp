@@ -3,6 +3,16 @@
 #include <format>
 #include <iostream>
 
+
+template<typename T>
+concept isAgent = requires(T a) {
+  { a.m_id } -> std::same_as<int>;
+  { a.m_capital } -> std::same_as<Money>;
+  { a.m_shares } -> std::same_as<int>;
+
+  { a.generate_order } -> std::same_as<std::vector<OrderReq_t>>;
+};
+
 [[nodiscard]] std::vector<OrderReq_t>
 Agent::generate_order([[maybe_unused]] const OrderBook::State& ob_state) const
 {

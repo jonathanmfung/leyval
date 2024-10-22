@@ -46,3 +46,11 @@ struct std::formatter<Agent> : std::formatter<std::string>
                                      ctx);
   }
 };
+
+/////////////////////////////////////
+
+class Agent_JericevichFundamentalist : public Agent{};
+class Agent_JericevichChartist : public Agent{};
+class Agent_JericevichProvider : public Agent{};
+
+class Agent_Raberto : public Agent{};

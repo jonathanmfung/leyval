@@ -29,3 +29,5 @@ main()
 
   return 0;
 }
+
+// TODO: Addd methods for candlestick/line chart data generation (open,close, low,high)
