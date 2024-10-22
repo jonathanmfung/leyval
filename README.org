@@ -1,3 +1,16 @@
+* leyval
+
+- Agent-based model simulation of Order Book liquidity dynamics
+- Focus on procedural fairness of various matching systems
+- Written in C++20
+
+** Usage
+#+begin_src sh :noeval
+cmake --preset release
+cmake --build --preset release
+build/release/leyval
+#+end_src
+
 * Sources
 ** An Empirical Analysis of the Limit Order Book and the Order Flow in the Paris Bourse
  https://sci-hub.ru/10.1111/j.1540-6261.1995.tb05192.x
