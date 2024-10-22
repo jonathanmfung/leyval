@@ -4,11 +4,15 @@
 #include <iostream>
 
 [[nodiscard]] std::vector<OrderReq_t>
-Agent::generate_order([[maybe_unused]] const OrderBook& order_book) const
+Agent::generate_order([[maybe_unused]] const OrderBook::State& ob_state) const
 {
   // TODO: Implement generate_order
   // std::cout << "Agent::generate_order "
   //           << order_book.current_best_price(OrderDir::Bid) << "\n";
+
+  // buy_sell_prob = 0.5
+  // can adjust this each step? +/- 0.01
+
   std::vector<OrderReq_t> reqs{};
 
   std::cout << std::format("Agent::generate_order:: get_id: {}\n", get_id());

@@ -4,7 +4,6 @@
 
 #include "order.hpp"
 #include "order_book.hpp"
-#include "overloaded.hpp"
 
 class Agent
 {
@@ -19,7 +18,7 @@ public:
   // generate instance of variant: https://stackoverflow.com/a/74303228
   // NOTE empty vector means agent is choosing to noop
   [[nodiscard]] std::vector<OrderReq_t> generate_order(
-    const OrderBook& order_book) const;
+    const OrderBook::State& ob_state) const;
 
   void buy(const int volume, const Money total_price);
   void sell(const int volume, const Money total_price);

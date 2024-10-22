@@ -12,21 +12,39 @@ public:
   // NOTE Assume that any order is valid (i.e. agent has sufficient capital and
   // shares)
 
-  [[nodiscard]] Money current_best_price(OrderDir order_dir) const;
-  [[nodiscard]] Money quoted_spread() const;
-  [[nodiscard]] int num_orders(OrderDir order_dir) const;
+  // TODO: State so that only need to calculate values once per timestep
+  struct State
+  {
+    Money best_price_bid;
+    Money best_price_ask;
+    Money mid_price;
+    Money quoted_spread;
+    int num_orders_bid;
+    int num_orders_ask;
 
+    State(const OrderBook& ob)
+      : best_price_bid{ ob.current_best_price(OrderDir::Bid) }
+      , best_price_ask{ ob.current_best_price(OrderDir::Ask) }
+      , mid_price{ ob.mid_price() }
+      , quoted_spread{ ob.quoted_spread() }
+      , num_orders_bid{ ob.num_orders(OrderDir::Bid) }
+      , num_orders_ask{ ob.num_orders(OrderDir::Ask) }
+    {
+    }
+  };
+
+  [[nodiscard]] State get_state() const { return m_state; }
+
+  // TODO: This is only used in MatchingSystem (which runs for every order_request, every volume)
   // Returns pair of iterators to range of best-priced orders.
   // These are able to mutate the underlying Bid/AskContainer.
   auto orders_at_best_price(OrderDir order_dir)
   {
-    const Money best_price{ current_best_price(order_dir) };
-
     switch (order_dir) {
       case OrderDir::Bid:
-        return m_bids.equal_range(best_price);
+        return m_bids.equal_range(m_state.best_price_bid);
       case OrderDir::Ask:
-        return m_asks.equal_range(best_price);
+        return m_asks.equal_range(m_state.best_price_ask);
       default:
         throw OrderDirInvalidValue("OrderBook::orders_at_best_price");
     }
@@ -58,8 +76,19 @@ private:
   BidContainer m_bids;
   AskContainer m_asks;
 
+  State m_state{ get_state() };
+
+  // TODO: Maybe imbalance (rho) : [num_orders(bid) - num_orders(ask)] /
+  // [num_orders(bid) + num_orders(ask)]
+  [[nodiscard]] Money current_best_price(OrderDir order_dir) const;
+  [[nodiscard]] Money mid_price() const;
+  [[nodiscard]] Money quoted_spread() const;
+  [[nodiscard]] int num_orders(OrderDir order_dir) const;
+
   friend struct std::formatter<OrderBook>;
 };
+
+// TODO: move all format definitions from header to source
 
 template<>
 struct std::formatter<OrderBook> : std::formatter<std::string>

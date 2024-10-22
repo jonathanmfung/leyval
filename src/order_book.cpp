@@ -26,6 +26,14 @@ OrderBook::current_best_price(OrderDir order_dir) const
 }
 
 [[nodiscard]] Money
+OrderBook::mid_price() const
+{
+  const Money ask{ current_best_price(OrderDir::Ask) };
+  const Money bid{ current_best_price(OrderDir::Bid) };
+  return (ask + bid) / 2;
+}
+
+[[nodiscard]] Money
 OrderBook::quoted_spread() const
 {
   // Expressed in %.

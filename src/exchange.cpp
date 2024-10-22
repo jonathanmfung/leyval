@@ -10,10 +10,11 @@ Exchange::run()
 {
   std::cout << "Init run\n";
   std::cout << "========================================\n";
+  const OrderBook::State ob_state{ m_order_book.get_state() };
+
   for (const auto& agent : m_agents) {
     std::cout << std::format("Loop {}\n", agent);
-    std::vector<OrderReq_t> new_order_reqs{ agent.generate_order(
-      m_order_book) };
+    std::vector<OrderReq_t> new_order_reqs{ agent.generate_order(ob_state) };
     if (!new_order_reqs.empty()) {
       std::cout << std::format("\tnew_order is not empty\n");
       for (const OrderReq_t order_req : new_order_reqs) {
@@ -39,7 +40,7 @@ Exchange::run()
                     auto transaction_requests{ m_matching_sys(mor,
                                                               m_order_book) };
                     for (auto transaction_request : transaction_requests) {
-		      std::cout << std::format("{}\n", transaction_request);
+                      std::cout << std::format("{}\n", transaction_request);
                       execute(transaction_request);
                     }
                   } },
