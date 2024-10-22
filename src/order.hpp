@@ -2,24 +2,22 @@
 
 #include <chrono>
 
-struct BaseOrder
-{
-  int volume;
-  int id;
-};
-
 // NOTE: can't use std::strong_ordering with floats
 using Money = int;
 const auto now = std::chrono::steady_clock::now;
 using time_point = std::chrono::time_point<std::chrono::steady_clock>;
 
-static const time_point INIT_TS {now()};
+static const time_point INIT_TS{ now() };
 
 enum class OrderDir
 {
   Bid,
   Ask,
 };
+
+// AKA Contra-side of a transaction
+OrderDir
+operator!(OrderDir order_dir);
 
 class OrderDirInvalidValue : public std::invalid_argument
 {
@@ -134,6 +132,8 @@ struct std::formatter<LimitOrderReq> : std::formatter<std::string>
       ctx);
   }
 };
+
+// TODO: Add CancelOrder (no dir, refer to specific LimitOrder in OrderBook)
 
 ////////////////////////////////////////////////////////////////////////////////
 

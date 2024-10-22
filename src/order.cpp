@@ -1,5 +1,18 @@
 #include "order.hpp"
 
+OrderDir
+operator!(OrderDir order_dir)
+{
+  switch (order_dir) {
+    case OrderDir::Bid:
+      return OrderDir::Ask;
+    case OrderDir::Ask:
+      return OrderDir::Bid;
+    default:
+      throw OrderDirInvalidValue("OrderBook::operator!");
+  }
+}
+
 std::strong_ordering
 operator<=>(const MarketOrderReq& mor1, const MarketOrderReq& mor2)
 {
