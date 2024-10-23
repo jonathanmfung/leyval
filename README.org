@@ -11,6 +11,12 @@ cmake --build --preset release
 build/release/leyval
 #+end_src
 
+* TODOs
+- [ ] Visualization (python matplotlib)
+- [ ] Logger (spdlog)
+- [ ] Unit Tests (googltest)
+
+
 * Sources
 ** An Empirical Analysis of the Limit Order Book and the Order Flow in the Paris Bourse
  https://sci-hub.ru/10.1111/j.1540-6261.1995.tb05192.x

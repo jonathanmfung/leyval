@@ -73,12 +73,15 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
       // Defer to Exchange::execute_transaction}
 
     case pro_rata:
+      {
       // TODO: Implement pro_rata
       // Get all LOs at current_best_price (best_los =
       // std::ranges::views::filter(order_book.m_asks, [](const LimitOrder&
       // lo){lo.price == order_book.current_best_price(OrderBid::Ask)()}
       // Calculate weight (weight = mor.volume /. std::size(best_los))
+      auto best_orders{ order_book.orders_at_best_price(mor.order_dir) };
       break;
+      }
     case random_selection:
       // TODO: Implement random_selection
       break;

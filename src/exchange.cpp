@@ -13,9 +13,9 @@
 void
 Exchange::saturate()
 {
+  std::cout << std::format("Exchange::saturate: Init {}\n", m_order_book);
+
   // NOTE: Assert that highest bid < lowest ask
-  std::vector<LimitOrderReq> bids{};
-  std::vector<LimitOrderReq> asks{};
 
   const int n_contracts_per_side{ 100 };
 
@@ -23,6 +23,8 @@ Exchange::saturate()
   std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
 
   // int agent_id{}; TODO: get set of agent_id and randomize from it.
+  // TODO: Or could just assume 0..max(agent_ids) and uniform_int_distribution
+  //       (No agent dies)
   std::set<int> agent_ids{};
   for (const auto& agent : m_agents)
     agent_ids.insert(agent.get_id());
@@ -34,12 +36,7 @@ Exchange::saturate()
   // int volume{};
   std::poisson_distribution<> volume(4);
 
-  // OrderDir order_dir{};
-  // std::bernoulli_distribution _order_dir(0.5);
-  // auto order_dir = [&_order_dir, &gen](){return _order_dir(gen) ?
-  // OrderDir::Bid : OrderDir::Ask;};
-  std::cout << "Exchange::saturate: gen bids\n";
-
+  std::cout << "Exchange::saturate: Gen Bids & Asks\n";
   // Bids
   for (const int _ : std::views::iota(0, n_contracts_per_side)) {
     LimitOrderReq lor{ .volume = volume(gen),
@@ -58,7 +55,7 @@ Exchange::saturate()
     m_order_book.insert(lor.to_full());
   }
 
-  std::cout << std::format("Exchange::saturate: {}\n", m_order_book);
+  std::cout << std::format("Exchange::saturate: Post {}\n", m_order_book);
 }
 
 void
@@ -66,7 +63,7 @@ Exchange::run()
 {
   std::cout << "Init run\n";
   std::cout << "========================================\n";
-  const OrderBook::State ob_state{ m_order_book.get_state() };
+  const OrderBook::State ob_state{ m_order_book.update_get_state()};
 
   for (const auto& agent : m_agents) {
     std::cout << std::format("Loop {}\n", agent);

@@ -33,16 +33,21 @@ public:
     }
   };
 
-  [[nodiscard]] State get_state() const { return m_state; }
+  [[nodiscard]] State update_get_state()
+  {
+    m_state = State(*this);
+    return m_state;
+  }
 
   // TODO: This is only used in MatchingSystem (which runs for every
-  // order_request, every volume) Returns pair of iterators to range of
-  // best-priced orders. These are able to mutate the underlying
-  // Bid/AskContainer.
+  // order_request, every volume [probably add to State]).
+  // Returns pair of iterators to range of best-priced orders. These are able to
+  // mutate the underlying Bid/AskContainer.
   auto orders_at_best_price(OrderDir order_dir)
   {
     switch (order_dir) {
       case OrderDir::Bid:
+        // TODO: m_state is never updated after init
         return m_bids.equal_range(m_state.best_price_bid);
       case OrderDir::Ask:
         return m_asks.equal_range(m_state.best_price_ask);
@@ -77,7 +82,7 @@ private:
   BidContainer m_bids;
   AskContainer m_asks;
 
-  State m_state{ get_state() };
+  State m_state{ update_get_state() };
 
   // TODO: Maybe imbalance (rho) : [num_orders(bid) - num_orders(ask)] /
   // [num_orders(bid) + num_orders(ask)]
@@ -89,20 +94,19 @@ private:
   friend struct std::formatter<OrderBook>;
 };
 
-// TODO: move all format definitions from header to source
-
 template<>
 struct std::formatter<OrderBook> : std::formatter<std::string>
 {
   auto format(const OrderBook& order_book, format_context& ctx) const
   {
-    // TODO Format # of each Bid/AskContainer (need to add public method)
+    // TODO: Format # of each Bid/AskContainer (need to add public method)
+    // TODO: use m_state
     return formatter<string>::format(
       std::format("OrderBook(Bids: (#{}, ${}), Asks: (#{}, ${}))",
-                  order_book.m_bids.size(),
-                  order_book.current_best_price(OrderDir::Bid),
-                  order_book.m_asks.size(),
-                  order_book.current_best_price(OrderDir::Ask)),
+                  order_book.m_state.num_orders_bid,
+                  order_book.m_state.best_price_bid,
+                  order_book.m_state.num_orders_ask,
+                  order_book.m_state.best_price_ask),
       ctx);
   }
 };

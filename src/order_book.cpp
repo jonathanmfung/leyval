@@ -7,6 +7,11 @@
 [[nodiscard]] Money
 OrderBook::current_best_price(OrderDir order_dir) const
 {
+  // TODO Maybe handle this init case better? optional? don't run on init?
+  // Init case
+  if (m_bids.empty() && m_asks.empty())
+    return 1;
+
   Money best_price{};
   switch (order_dir) {
     case OrderDir::Bid:
@@ -16,9 +21,10 @@ OrderBook::current_best_price(OrderDir order_dir) const
       best_price = std::ranges::min_element(m_asks)->first;
       break;
   }
-  if (!(0 < best_price))
-    throw std::domain_error(
-      std::format("best_price must be greater than 0 ({})", order_dir));
+  assert(0 < best_price && "OrderBook::current_best_price: best_price must be greater than 0");
+  // if (!(0 < best_price))
+  //   throw std::domain_error(
+  //     std::format("OrderBook::current_best_price: best_price must be greater than 0 ({})", order_dir));
 
   return best_price;
 }
