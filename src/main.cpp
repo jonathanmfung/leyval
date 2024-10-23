@@ -16,9 +16,14 @@ main()
 
   // TODO: Need to initially saturate orderbook
   //       Empty Bid/AskContainers is making current_best_price throw.
+
+  // Can saturate by using m_order_book.insert(lor.to_full()) with random spread
+
   Exchange exch{ OrderBook{},
                  std::vector{ a1, a2 },
                  MatchingSystem{ MatchingSystem::fifo } };
+
+  exch.saturate();
 
 
   exch.run();

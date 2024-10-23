@@ -39,6 +39,8 @@ public:
   // TODO: Add static tick count to help calculate agent's inter-arrival time
   void run();
 
+  void saturate();
+
 private:
   OrderBook m_order_book;
   std::vector<Agent> m_agents;

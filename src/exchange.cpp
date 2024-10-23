@@ -1,10 +1,65 @@
 #include <cassert>
 #include <format>
 #include <iostream>
+#include <random>
+#include <ranges>
+#include <set>
 #include <stdexcept>
 
 #include "exchange.hpp"
+#include "order.hpp"
 #include "overloaded.hpp"
+
+void
+Exchange::saturate()
+{
+  // NOTE: Assert that highest bid < lowest ask
+  std::vector<LimitOrderReq> bids{};
+  std::vector<LimitOrderReq> asks{};
+
+  const int n_contracts_per_side{ 100 };
+
+  std::random_device rd;  // a seed source for the random number engine
+  std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+
+  // int agent_id{}; TODO: get set of agent_id and randomize from it.
+  std::set<int> agent_ids{};
+  for (const auto& agent : m_agents)
+    agent_ids.insert(agent.get_id());
+
+  // Money price;
+  std::uniform_int_distribution<> bid_prices(90, 98);
+  std::uniform_int_distribution<> ask_prices(102, 110);
+
+  // int volume{};
+  std::poisson_distribution<> volume(4);
+
+  // OrderDir order_dir{};
+  // std::bernoulli_distribution _order_dir(0.5);
+  // auto order_dir = [&_order_dir, &gen](){return _order_dir(gen) ?
+  // OrderDir::Bid : OrderDir::Ask;};
+  std::cout << "Exchange::saturate: gen bids\n";
+
+  // Bids
+  for (const int _ : std::views::iota(0, n_contracts_per_side)) {
+    LimitOrderReq lor{ .volume = volume(gen),
+                       .agent_id = 1,
+                       .price = bid_prices(gen),
+                       .order_dir = OrderDir::Bid };
+    m_order_book.insert(lor.to_full());
+  }
+
+  // Asks
+  for (const int _ : std::views::iota(0, n_contracts_per_side)) {
+    LimitOrderReq lor{ .volume = volume(gen),
+                       .agent_id = 1,
+                       .price = ask_prices(gen),
+                       .order_dir = OrderDir::Ask };
+    m_order_book.insert(lor.to_full());
+  }
+
+  std::cout << std::format("Exchange::saturate: {}\n", m_order_book);
+}
 
 void
 Exchange::run()

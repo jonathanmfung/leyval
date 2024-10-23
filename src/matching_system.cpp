@@ -24,7 +24,8 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
   switch (m_type) {
     case fifo: {
       // Each share traded needs to recalculate the best price
-      for (const int i : std::views::iota(1, mor.volume)) {
+      // TODO: Check that iota should start at 0
+      for (const int i : std::views::iota(0, mor.volume)) {
         std::cout << std::format("MS::(FIFO) Loop {}\n", i);
 
         auto best_orders{ order_book.orders_at_best_price(mor.order_dir) };
