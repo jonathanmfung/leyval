@@ -35,9 +35,10 @@ public:
 
   [[nodiscard]] State get_state() const { return m_state; }
 
-  // TODO: This is only used in MatchingSystem (which runs for every order_request, every volume)
-  // Returns pair of iterators to range of best-priced orders.
-  // These are able to mutate the underlying Bid/AskContainer.
+  // TODO: This is only used in MatchingSystem (which runs for every
+  // order_request, every volume) Returns pair of iterators to range of
+  // best-priced orders. These are able to mutate the underlying
+  // Bid/AskContainer.
   auto orders_at_best_price(OrderDir order_dir)
   {
     switch (order_dir) {
@@ -97,6 +98,11 @@ struct std::formatter<OrderBook> : std::formatter<std::string>
   {
     // TODO Format # of each Bid/AskContainer (need to add public method)
     return formatter<string>::format(
-				     std::format("OrderBook(Bids: (#{}, ${}), Asks: (#{}, ${}))", order_book.m_bids.size(), order_book.current_best_price(OrderDir::Bid), order_book.m_asks.size(), order_book.current_best_price(OrderDir::Ask)), ctx);
+      std::format("OrderBook(Bids: (#{}, ${}), Asks: (#{}, ${}))",
+                  order_book.m_bids.size(),
+                  order_book.current_best_price(OrderDir::Bid),
+                  order_book.m_asks.size(),
+                  order_book.current_best_price(OrderDir::Ask)),
+      ctx);
   }
 };

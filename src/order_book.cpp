@@ -9,10 +9,8 @@ OrderBook::current_best_price(OrderDir order_dir) const
 {
   Money best_price{};
   switch (order_dir) {
-    // NOTE Using min_element since multimaps are reveresed (bid =
-    // std::greater, ask = std::less)
     case OrderDir::Bid:
-      best_price = std::ranges::min_element(m_bids)->first;
+      best_price = std::ranges::max_element(m_bids)->first;
       break;
     case OrderDir::Ask:
       best_price = std::ranges::min_element(m_asks)->first;
