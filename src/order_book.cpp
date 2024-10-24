@@ -1,8 +1,22 @@
 #include <algorithm>
 #include <cassert>
 
+#include "my_spdlog.hpp"
 #include "order.hpp"
 #include "order_book.hpp"
+
+auto
+fmt::formatter<OrderBook>::format(const OrderBook& order_book,
+                                  format_context& ctx) const
+  -> format_context::iterator
+{
+  return fmt::format_to(ctx.out(),
+                        "OrderBook(Bids: (#{}, ${}), Asks: (#{}, ${}))",
+                        order_book.m_state.num_orders_bid,
+                        order_book.m_state.best_price_bid,
+                        order_book.m_state.num_orders_ask,
+                        order_book.m_state.best_price_ask);
+}
 
 [[nodiscard]] Money
 OrderBook::current_best_price(OrderDir order_dir) const
@@ -21,10 +35,12 @@ OrderBook::current_best_price(OrderDir order_dir) const
       best_price = std::ranges::min_element(m_asks)->first;
       break;
   }
-  assert(0 < best_price && "OrderBook::current_best_price: best_price must be greater than 0");
-  // if (!(0 < best_price))
-  //   throw std::domain_error(
-  //     std::format("OrderBook::current_best_price: best_price must be greater than 0 ({})", order_dir));
+  if (!(0 < best_price)) {
+    SPDLOG_ERROR(
+      "OrderBook::current_best_price: best_price must be greater than 0 ({})",
+      order_dir);
+    throw std::domain_error("");
+  }
 
   return best_price;
 }

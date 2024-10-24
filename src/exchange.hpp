@@ -52,17 +52,11 @@ private:
 
   void execute(TransactionRequest trans);
 
-  friend struct std::formatter<Exchange>;
+  friend struct fmt::formatter<Exchange>;
 };
 
 template<>
-struct std::formatter<Exchange> : std::formatter<std::string>
+struct fmt::formatter<Exchange> : fmt::formatter<std::string_view>
 {
-  auto format(const Exchange& exchange, format_context& ctx) const
-  {
-    return formatter<string>::format(std::format("Exchange({}, {})",
-                                                 exchange.m_matching_sys,
-                                                 exchange.m_order_book),
-                                     ctx);
-  }
+  auto format(const Exchange& exchange, format_context& ctx) const -> format_context::iterator;
 };

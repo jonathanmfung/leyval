@@ -2,6 +2,11 @@
 
 #include <chrono>
 
+#include <fmt/format.h>
+#include <fmt/chrono.h>
+#include <fmt/std.h>
+
+
 // NOTE: can't use std::strong_ordering with floats
 using Money = int;
 const auto now = std::chrono::steady_clock::now;
@@ -29,14 +34,9 @@ public:
 };
 
 template<>
-struct std::formatter<OrderDir> : std::formatter<std::string>
+struct fmt::formatter<OrderDir> : fmt::formatter<std::string_view>
 {
-  auto format(const OrderDir& order_dir, format_context& ctx) const
-  {
-    return formatter<string>::format(
-      std::format("OrderDir {}", order_dir == OrderDir::Bid ? "Bid" : "Ask"),
-      ctx);
-  }
+  auto format(const OrderDir& od, format_context& ctx) const -> format_context::iterator;
 };
 
 ///////////////////
@@ -67,18 +67,9 @@ bool
 operator==(const MarketOrderReq& mor1, const MarketOrderReq& mor2);
 
 template<>
-struct std::formatter<MarketOrderReq> : std::formatter<std::string>
+struct fmt::formatter<MarketOrderReq> : fmt::formatter<std::string_view>
 {
-  auto format(const MarketOrderReq& mor, format_context& ctx) const
-  {
-    return formatter<string>::format(
-      std::format("(MOR: {{a_id: {}, vol: {}, {}, {}}})",
-                  mor.agent_id,
-                  mor.volume,
-                  mor.order_dir,
-                  std::chrono::duration_cast<std::chrono::microseconds>(mor.timestamp - INIT_TS)),
-      ctx);
-  }
+  auto format(const MarketOrderReq& mor, format_context& ctx) const -> format_context::iterator;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,19 +109,9 @@ bool
 operator==(const LimitOrderReq& lor1, const LimitOrderReq& lor2);
 
 template<>
-struct std::formatter<LimitOrderReq> : std::formatter<std::string>
+struct fmt::formatter<LimitOrderReq> : fmt::formatter<std::string_view>
 {
-  auto format(const LimitOrderReq& lor, format_context& ctx) const
-  {
-    return formatter<string>::format(
-      std::format("(LOR: {{a_id: {}, prc: {}, vol: {}, {}, {}}})",
-                  lor.agent_id,
-		  lor.price,
-                  lor.volume,
-                  lor.order_dir,
-                  std::chrono::duration_cast<std::chrono::microseconds>(lor.timestamp - INIT_TS)),
-      ctx);
-  }
+  auto format(const LimitOrderReq& lor, format_context& ctx) const -> format_context::iterator;
 };
 
 // TODO: Add CancelOrder (no dir, refer to specific LimitOrder in OrderBook)
@@ -139,14 +120,4 @@ struct std::formatter<LimitOrderReq> : std::formatter<std::string>
 
 using OrderReq_t = OrderReqVar<MarketOrderReq, LimitOrderReq>;
 
-template<>
-struct std::formatter<OrderReq_t> : std::formatter<std::string>
-{
-  auto format(const OrderReq_t& order_req, format_context& ctx) const
-  {
-    return formatter<string>::format(
-      std::visit([](const auto& req) { return std::format("{}", req); },
-                 order_req),
-      ctx);
-  }
-};
+// NOTE: OrderReq fmt provided by <fmt/std.h> (default variant)

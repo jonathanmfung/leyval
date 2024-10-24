@@ -1,8 +1,9 @@
 #pragma once
 
+#include <stdexcept>
+
 #include "order.hpp"
 #include "order_book.hpp"
-#include <stdexcept>
 
 struct TransactionRequest
 {
@@ -37,19 +38,11 @@ struct TransactionRequest
 // TransactionRequest(initiator_agent, provider_agent, volume, price, order_dir)
 
 template<>
-struct std::formatter<TransactionRequest> : std::formatter<std::string>
+struct fmt::formatter<TransactionRequest> : fmt::formatter<std::string_view>
 {
-  auto format(const TransactionRequest& treq, format_context& ctx) const
-  {
-    return formatter<string>::format(
-      std::format("(TREQ: {{bid_id: {}, ask_id: {}, prc: {}, vol: {}}})",
-                  treq.bidder_id,
-                  treq.asker_id,
-                  treq.price,
-                  treq.volume),
-      ctx);
-  }
+  auto format(const TransactionRequest& treq, format_context& ctx) const -> format_context::iterator;
 };
+
 
 //////////////////////////////////////////////////////////
 
@@ -91,11 +84,7 @@ private:
 };
 
 template<>
-struct std::formatter<MatchingSystem> : std::formatter<std::string>
+struct fmt::formatter<MatchingSystem> : fmt::formatter<std::string_view>
 {
-  auto format(const MatchingSystem& match_sys, format_context& ctx) const
-  {
-    return formatter<string>::format(
-      std::format("MatchingSystem({})", match_sys.get_type_string()), ctx);
-  }
+  auto format(const MatchingSystem& match_sys, format_context& ctx) const -> format_context::iterator;
 };

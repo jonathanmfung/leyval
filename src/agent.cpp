@@ -1,8 +1,13 @@
+#include "my_spdlog.hpp"
 #include "agent.hpp"
 
-#include <format>
-#include <iostream>
-
+auto
+fmt::formatter<Agent>::format(const Agent& agent,
+                                      format_context& ctx) const
+  -> format_context::iterator
+{
+  return fmt::format_to(ctx.out(), "Agent {}", agent.get_id());
+}
 
 template<typename T>
 concept isAgent = requires(T a) {
@@ -25,7 +30,7 @@ Agent::generate_order([[maybe_unused]] const OrderBook::State& ob_state) const
 
   std::vector<OrderReq_t> reqs{};
 
-  std::cout << std::format("Agent::generate_order:: get_id: {}\n", get_id());
+  SPDLOG_TRACE("Agent::generate_order:: get_id: {}", get_id());
 
   reqs.emplace_back(LimitOrderReq{ .volume = 5,
                                    .agent_id = get_id(),

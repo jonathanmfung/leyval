@@ -1,19 +1,29 @@
 #include <cassert>
-#include <format>
-#include <iostream>
 #include <random>
 #include <ranges>
 #include <set>
 #include <stdexcept>
 
+#include "my_spdlog.hpp"
+
 #include "exchange.hpp"
 #include "order.hpp"
 #include "overloaded.hpp"
 
+auto
+fmt::formatter<Exchange>::format(const Exchange& exchange, format_context& ctx)
+  const -> format_context::iterator
+{
+  return fmt::format_to(ctx.out(),
+                        "Exchange({}, {})",
+                        exchange.m_matching_sys,
+                        exchange.m_order_book);
+}
+
 void
 Exchange::saturate()
 {
-  std::cout << std::format("Exchange::saturate: Init {}\n", m_order_book);
+  SPDLOG_DEBUG("Exchange::saturate: Init {}", m_order_book);
 
   // NOTE: Assert that highest bid < lowest ask
 
@@ -36,7 +46,7 @@ Exchange::saturate()
   // int volume{};
   std::poisson_distribution<> volume(4);
 
-  std::cout << "Exchange::saturate: Gen Bids & Asks\n";
+  SPDLOG_DEBUG("Exchange::saturate: Gen Bids & Asks");
   // Bids
   for (const int _ : std::views::iota(0, n_contracts_per_side)) {
     LimitOrderReq lor{ .volume = volume(gen),
@@ -55,67 +65,67 @@ Exchange::saturate()
     m_order_book.insert(lor.to_full());
   }
 
-  std::cout << std::format("Exchange::saturate: Post {}\n", m_order_book);
+  SPDLOG_DEBUG("Exchange::saturate: Post {}", m_order_book);
 }
 
 void
 Exchange::run()
 {
-  std::cout << "Init run\n";
-  std::cout << "========================================\n";
-  const OrderBook::State ob_state{ m_order_book.update_get_state()};
+  spdlog::trace("tracing in exchange::run (function)");
+  SPDLOG_TRACE("tracing in exchange::run (macro)");
+  SPDLOG_INFO("Init run ========================================");
+  const OrderBook::State ob_state{ m_order_book.update_get_state() };
 
   for (const auto& agent : m_agents) {
-    std::cout << std::format("Loop {}\n", agent);
+    SPDLOG_TRACE("Loop {}", agent);
     std::vector<OrderReq_t> new_order_reqs{ agent.generate_order(ob_state) };
     if (!new_order_reqs.empty()) {
-      std::cout << std::format("\tnew_order is not empty\n");
+      SPDLOG_TRACE("new_order is not empty");
       for (const OrderReq_t order_req : new_order_reqs) {
-        std::cout << std::format("\tPushing {}\n", order_req);
+        SPDLOG_TRACE("\tPushing {}", order_req);
         m_current_order_requests.push_back(order_req);
       }
     }
   }
-  std::cout << "After agents send requests: (current_order_requests)\n";
-  for (const auto& order_req : m_current_order_requests)
-    std::cout << std::format("{}\n", order_req);
+  SPDLOG_INFO("After agents send requests: (current_order_requests)");
+  for ([[maybe_unused]] const auto& order_req : m_current_order_requests)
+    SPDLOG_TRACE("{}", order_req);
 
-  std::cout << "\n========================================\n";
+  SPDLOG_INFO("========================================");
   for (auto& order_request : m_current_order_requests) {
-    std::cout << std::format("Loop {}\n", order_request);
+    SPDLOG_TRACE("Loop {}", order_request);
     std::visit(
       overloaded{ [this](const LimitOrderReq& lor) {
-                   std::cout << "LOR Visit\n";
+	SPDLOG_TRACE("LOR Visit");
                    m_order_book.insert(lor.to_full());
                  },
                   [this](MarketOrderReq& mor) {
-                    std::cout << "MOR Visit\n";
+                    SPDLOG_TRACE("MOR Visit");
                     auto transaction_requests{ m_matching_sys(mor,
                                                               m_order_book) };
                     for (auto transaction_request : transaction_requests) {
-                      std::cout << std::format("{}\n", transaction_request);
+                      SPDLOG_TRACE("{}", transaction_request);
                       execute(transaction_request);
                     }
                   } },
       order_request);
   }
-  std::cout << "Clear order_request\n";
   m_current_order_requests.clear();
 }
 
 std::optional<std::reference_wrapper<Agent>>
 Exchange::find_agent(const int agent_id)
 {
-  std::cout << std::format("Exchange::find_agent - For a_id: {}\n", agent_id);
+  SPDLOG_DEBUG("Exchange::find_agent - For a_id: {}", agent_id);
   auto is_id = [agent_id](const Agent& elem) {
     return elem.get_id() == agent_id;
   };
   if (auto res = std::ranges::find_if(m_agents, is_id);
       res != std::end(m_agents)) {
-    std::cout << std::format("Exchange::find_agent - Found {}\n", *res);
+    SPDLOG_TRACE("Exchange::find_agent - Found {}", *res);
     return std::make_optional(std::ref(*res));
   }
-  std::cout << std::format("Exchange::find_agent - Found NONE\n");
+  SPDLOG_DEBUG("Exchange::find_agent - Found NONE");
   return std::nullopt;
 }
 
@@ -129,10 +139,10 @@ Exchange::execute(TransactionRequest trans)
     asker->get().sell(trans.volume, trans.price);
     bidder->get().buy(trans.volume, trans.price);
   } else {
-    throw std::logic_error(
-      std::format("Exchange::execute could not find asker ({}) ior bidder ({})",
-                  trans.asker_id,
-                  trans.bidder_id));
-    // assert(false && "Exchange::execute could not find asker ior bidder");
+
+    SPDLOG_ERROR("Exchange::execute could not find asker ({}) ior bidder ({})",
+                 trans.asker_id,
+                 trans.bidder_id);
+    throw std::logic_error("");
   }
 }

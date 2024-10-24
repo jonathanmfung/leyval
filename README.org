@@ -4,6 +4,9 @@
 - Focus on procedural fairness of various matching systems
 - Written in C++20
 
+** Requirements
+- [[https://github.com/gabime/spdlog?tab=readme-ov-file#install][spdlog]]
+
 ** Usage
 #+begin_src sh :noeval
 cmake --preset release

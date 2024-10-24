@@ -91,22 +91,10 @@ private:
   [[nodiscard]] Money quoted_spread() const;
   [[nodiscard]] int num_orders(OrderDir order_dir) const;
 
-  friend struct std::formatter<OrderBook>;
+  friend struct fmt::formatter<OrderBook>;
 };
-
 template<>
-struct std::formatter<OrderBook> : std::formatter<std::string>
+struct fmt::formatter<OrderBook> : fmt::formatter<std::string_view>
 {
-  auto format(const OrderBook& order_book, format_context& ctx) const
-  {
-    // TODO: Format # of each Bid/AskContainer (need to add public method)
-    // TODO: use m_state
-    return formatter<string>::format(
-      std::format("OrderBook(Bids: (#{}, ${}), Asks: (#{}, ${}))",
-                  order_book.m_state.num_orders_bid,
-                  order_book.m_state.best_price_bid,
-                  order_book.m_state.num_orders_ask,
-                  order_book.m_state.best_price_ask),
-      ctx);
-  }
+  auto format(const OrderBook& order_book, format_context& ctx) const -> format_context::iterator;
 };

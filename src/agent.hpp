@@ -1,7 +1,5 @@
 #pragma once
 
-#include <format>
-
 #include "order.hpp"
 #include "order_book.hpp"
 
@@ -38,13 +36,9 @@ private:
 };
 
 template<>
-struct std::formatter<Agent> : std::formatter<std::string>
+struct fmt::formatter<Agent> : fmt::formatter<std::string_view>
 {
-  auto format(const Agent& agent, format_context& ctx) const
-  {
-    return formatter<string>::format(std::format("Agent {}", agent.get_id()),
-                                     ctx);
-  }
+  auto format(const Agent& agent, format_context& ctx) const -> format_context::iterator;
 };
 
 /////////////////////////////////////
