@@ -15,8 +15,8 @@
 	    "generator": "Unix Makefiles",
 	    "binaryDir": "${sourceDir}/build/${presetName}",
 	    "cacheVariables": {
-		"CMAKE_C_COMPILER": "gcc",
-		"CMAKE_CXX_COMPILER": "g++"
+		"CMAKE_C_COMPILER": "clang",
+		"CMAKE_CXX_COMPILER": "clang++"
 	    }
 	},
 	{
