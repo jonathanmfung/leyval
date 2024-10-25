@@ -79,7 +79,6 @@ OrderBook::num_orders(OrderDir order_dir) const
 void
 OrderBook::insert(LimitOrder lo)
 {
-  // TODO: Check this implementation
   switch (lo.second.order_dir) {
     case OrderDir::Bid:
       m_bids.insert(lo);

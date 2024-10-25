@@ -47,7 +47,6 @@ public:
   {
     switch (order_dir) {
       case OrderDir::Bid:
-        // TODO: m_state is never updated after init
         return m_bids.equal_range(m_state.best_price_bid);
       case OrderDir::Ask:
         return m_asks.equal_range(m_state.best_price_ask);

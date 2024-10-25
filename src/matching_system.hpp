@@ -46,6 +46,7 @@ struct fmt::formatter<TransactionRequest> : fmt::formatter<std::string_view>
 
 //////////////////////////////////////////////////////////
 
+// TODO: Think about splitting MatchingSystem to concept or abstract base class
 class MatchingSystem
 {
 public:
