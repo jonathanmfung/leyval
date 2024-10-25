@@ -36,9 +36,9 @@ main()
   exch.saturate();
 
   for ([[maybe_unused]] const int i : std::views::iota(1, 6)) {
-    SPDLOG_DEBUG("Run #{} ***********************", i);
+    SPDLOG_INFO("Run #{} ***********************", i);
     exch.run();
-    SPDLOG_DEBUG("{}", exch);
+    SPDLOG_INFO("{}", exch);
   }
 
   return 0;

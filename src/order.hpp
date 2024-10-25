@@ -114,7 +114,7 @@ struct fmt::formatter<LimitOrderReq> : fmt::formatter<std::string_view>
   auto format(const LimitOrderReq& lor, format_context& ctx) const -> format_context::iterator;
 };
 
-// TODO: Add CancelOrder (no dir, refer to specific LimitOrder in OrderBook)
+// TODO: Add CancelOrder (no dir, remove specific LimitOrder in OrderBook)
 
 ////////////////////////////////////////////////////////////////////////////////
 
