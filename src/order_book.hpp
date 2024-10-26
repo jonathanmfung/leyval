@@ -2,6 +2,7 @@
 
 #include <map>
 
+#include "serializable.hpp"
 #include "order.hpp"
 
 class OrderBook
@@ -91,6 +92,7 @@ private:
   [[nodiscard]] int num_orders(OrderDir order_dir) const;
 
   friend struct fmt::formatter<OrderBook>;
+  friend void to_json(json& j, const OrderBook& order_book);
 };
 template<>
 struct fmt::formatter<OrderBook> : fmt::formatter<std::string_view>

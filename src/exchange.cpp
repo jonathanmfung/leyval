@@ -6,10 +6,23 @@
 #include <stdexcept>
 
 #include "my_spdlog.hpp"
+#include "serializable.hpp"
 
 #include "exchange.hpp"
 #include "order.hpp"
 #include "overloaded.hpp"
+
+void
+to_json(json& j, const Exchange& exch)
+{
+  j =
+    json{ { "order_book", exch.m_order_book },
+          { "agents", exch.m_agents },
+          // NOTE: using this with to_json(..., MatchingSystem) does not compile
+          { "matching_system", exch.m_matching_sys.get_type_string() } };
+}
+
+static_assert(Serializable<Exchange>);
 
 auto
 fmt::formatter<Exchange>::format(const Exchange& exchange, format_context& ctx)
@@ -33,7 +46,8 @@ Exchange::saturate()
   std::random_device rd;  // a seed source for the random number engine
   std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
 
-  // NOTE: Strong assumption that no agent dies in-bewtween Exhange constructor and saturate
+  // NOTE: Strong assumption that no agent dies in-bewtween Exhange constructor
+  // and saturate
   //       (and relying on Agent::new_id being sequential)
   auto max_agent{ std::ranges::max_element(
     m_agents, [](const Agent& a1, const Agent& a2) {

@@ -4,6 +4,7 @@
 
 #include "order.hpp"
 #include "order_book.hpp"
+#include "serializable.hpp"
 
 struct TransactionRequest
 {

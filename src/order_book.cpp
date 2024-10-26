@@ -1,9 +1,27 @@
 #include <algorithm>
 #include <cassert>
+#include <map>
 
 #include "my_spdlog.hpp"
+#include "serializable.hpp"
 #include "order.hpp"
 #include "order_book.hpp"
+
+void
+to_json(json& j, const OrderBook& order_book)
+{
+  std::map<Money, int> bid_counts;
+  std::map<Money, int> ask_counts;
+
+  for (const auto& pair : order_book.m_bids)
+    ++bid_counts[pair.first];
+
+  for (const auto& pair : order_book.m_asks)
+    ++ask_counts[pair.first];
+
+  j = json{ { "bid_counts",  bid_counts}, { "ask_counts",  ask_counts}};
+}
+static_assert(Serializable<OrderBook>);
 
 auto
 fmt::formatter<OrderBook>::format(const OrderBook& order_book,

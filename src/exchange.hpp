@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-
+#include "serializable.hpp"
 #include "agent.hpp"
 #include "matching_system.hpp"
 #include "order.hpp"
@@ -52,6 +52,7 @@ private:
 
   void execute(TransactionRequest trans);
 
+  friend void to_json(json& j, const Exchange& exch);
   friend struct fmt::formatter<Exchange>;
 };
 

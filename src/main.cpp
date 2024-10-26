@@ -2,6 +2,7 @@
 #include <ranges>
 
 #include "my_spdlog.hpp"
+#include "serializable.hpp"
 
 #include "agent.hpp"
 #include "exchange.hpp"
@@ -13,7 +14,8 @@
 int
 main()
 {
-  // Same format as default, but with YYMMDD instead of YYYY-MM-DD, and source function
+  // Same format as default, but with YYMMDD instead of YYYY-MM-DD, and source
+  // function
   spdlog::set_pattern("[%C%m%d %T.%e] [%^%-8l%$] [%s:%# (%!)] %v");
   spdlog::set_level(spdlog::level::trace); // Set global log level
 
@@ -30,16 +32,20 @@ main()
 
   Exchange exch{ OrderBook{}, agents, MatchingSystem{ MatchingSystem::fifo } };
 
-  // TODO: Allow dumping exch state to json (order_book, agents)
-  //       For consumption by python (plotting)
-
   exch.saturate();
+
+  json exchange_states;
+  exchange_states.push_back(exch);
 
   for ([[maybe_unused]] const int i : std::views::iota(1, 6)) {
     SPDLOG_INFO("Run #{} ***********************", i);
     exch.run();
+    exchange_states.push_back(exch);
     SPDLOG_INFO("{}", exch);
   }
+
+  std::ofstream out_file("data/pretty.json");
+  out_file << std::setw(2) << exchange_states << std::endl;
 
   return 0;
 }

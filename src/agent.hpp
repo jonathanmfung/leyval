@@ -1,7 +1,10 @@
 #pragma once
 
+#include "serializable.hpp"
+
 #include "order.hpp"
 #include "order_book.hpp"
+
 
 class Agent
 {
@@ -33,6 +36,8 @@ private:
     static int id{ 0 };
     return ++id;
   }
+
+  friend void to_json(json& j, const Agent& agent);
 };
 
 template<>

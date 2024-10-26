@@ -1,5 +1,14 @@
-#include "my_spdlog.hpp"
 #include "order.hpp"
+#include "my_spdlog.hpp"
+#include "serializable.hpp"
+
+NLOHMANN_JSON_SERIALIZE_ENUM(OrderDir,
+                             {
+                               { OrderDir::Bid, "Bid" },
+                               { OrderDir::Ask, "Ask" },
+                             })
+
+static_assert(Serializable<OrderDir>);
 
 auto
 fmt::formatter<OrderDir>::format(const OrderDir& od, format_context& ctx) const

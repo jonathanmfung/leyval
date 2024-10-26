@@ -1,9 +1,18 @@
-#include "my_spdlog.hpp"
 #include "agent.hpp"
+#include "my_spdlog.hpp"
+#include "serializable.hpp"
+
+void
+to_json(json& j, const Agent& agent)
+{
+  j = json{ { "id", agent.get_id() },
+            { "capital", agent.m_capital },
+            { "shares", agent.m_shares } };
+}
+static_assert(Serializable<Agent>);
 
 auto
-fmt::formatter<Agent>::format(const Agent& agent,
-                                      format_context& ctx) const
+fmt::formatter<Agent>::format(const Agent& agent, format_context& ctx) const
   -> format_context::iterator
 {
   return fmt::format_to(ctx.out(), "Agent {}", agent.get_id());
@@ -34,11 +43,11 @@ Agent::generate_order([[maybe_unused]] const OrderBook::State& ob_state) const
 
   reqs.emplace_back(LimitOrderReq{ .volume = 5,
                                    .agent_id = get_id(),
-                                   .price = 35,
+                                   .price = ob_state.best_price_bid,
                                    .order_dir = OrderDir::Bid });
   reqs.emplace_back(LimitOrderReq{ .volume = 5,
                                    .agent_id = get_id(),
-                                   .price = 45,
+                                   .price = ob_state.best_price_ask,
                                    .order_dir = OrderDir::Ask });
 
   reqs.emplace_back(MarketOrderReq{
