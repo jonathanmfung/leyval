@@ -128,7 +128,9 @@ NOT EXACTLY SURE
 \[ x_m^C = \begin{cases}
        20 & |m - \bar{m}| \leq \delta m \\
        50 & |m - \bar{m}| > \delta m
-   \end{cases} \]
+\end{cases} \]
+
+
 
 *** For Liquidity Providers (LimitOrders)
 \(\theta := \text{Probability of Placing Ask}\)
@@ -141,6 +143,32 @@ NOT EXACTLY SURE
    \end{cases} \]
 
 \(p := \text{placement of limit order}\)
+** Investopedia
+[[https://www.investopedia.com/terms/m/market-price.asp]]
+#+begin_quote
+Since $30.02 was the last traded price, this is the market price.
+#+end_quote
+
+[[https://www.investopedia.com/ask/answers/042215/what-do-bid-and-ask-prices-represent-stock-quote.asp]]
+#+begin_quote
+That's because they can sell shares at the higher ask price and buy them at the lower bid price, profiting from the difference.
+#+end_quote
+** Linking Agent-Based Models and Stochastic Models of Financial Markets
+https://www.pnas.org/doi/pdf/10.1073/pnas.1205013109
+
+- technical trader :: seeking arbitrage and making decisions from price patterns
+- fundamentalist :: attempt to determine the fundamental value of stocks
+
+#+begin_quote
+We consider here only technical traders, assuming that fundamentalists contribute only to market noise.
+#+end_quote
+
+- demand :: number of buy trades
+- supply :: number of sell traddes
+
+#+begin_quote
+On the other hand, the individual strategies used by different technical traders differ in their parameterizations of the buy/sell time, amount of risk tolerated, or portfolio composition (15). So when the input signal—the previous price change r_{t−1}—is small, every agent acts independently. When the input signal is large, the agents act more in concert, irrespective of their differences in trading strategies
+#+end_quote
 
 * ~clang-tidy~
 #+begin_src sh :results output :async
