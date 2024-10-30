@@ -1,0 +1,3 @@
+#+begin_src :noeval
+poetry run python plot.py
+#+end_src
