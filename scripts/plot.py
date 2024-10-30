@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 DATA_FILE = "../data/pretty.json"
+IMG_DIR = "img/"
 
 with open(DATA_FILE, 'r') as f:
     raw_json = json.load(f)
@@ -31,7 +32,7 @@ print(data_book[0])
 agents = data_agents[2]
 x = agents['id']
 
-fig, ax = plt.subplots(figsize=(7, 15))
+fig, ax = plt.subplots(figsize=(15, 7))
 
 width = 0.25  # the width of the bars
 multiplier = 0.5
@@ -48,19 +49,19 @@ ax.set_title('Agents')
 ax.set_xticks(x + width, x)
 
 plt.tight_layout()
-plt.show()
+plt.savefig(IMG_DIR + "agents.png")
 
 ## plot book
 
 h_bids, edges_bids = data_book[0]['bids'].index, data_book[0]['bids'].values
 h_asks, edges_asks = data_book[0]['asks'].index, data_book[0]['asks'].values
 
-fig, ax = plt.subplots(figsize=(7, 15))
+fig, ax = plt.subplots(figsize=(15, 7))
 ax.bar(h_bids, edges_bids, label='bids', color='green')
 ax.bar(h_asks, edges_asks, label='asks', color='red')
 
 ax.legend()
-plt.show()
+plt.savefig(IMG_DIR + "book.png")
 
 ## plot book - animation (plt.pause)
 fig, ax = plt.subplots(figsize=(7, 15))
