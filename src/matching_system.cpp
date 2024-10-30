@@ -47,7 +47,6 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
   switch (m_type) {
     case fifo: {
       // Each share traded needs to recalculate the best price
-      // TODO: Check that iota should start at 0
       for ([[maybe_unused]] const int i : std::views::iota(0, mor.volume)) {
         SPDLOG_TRACE("MS::(FIFO) Loop {}", i);
 	// TODO: Check that order direction is correct
