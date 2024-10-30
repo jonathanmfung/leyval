@@ -114,7 +114,18 @@ struct fmt::formatter<LimitOrderReq> : fmt::formatter<std::string_view>
   auto format(const LimitOrderReq& lor, format_context& ctx) const -> format_context::iterator;
 };
 
-// TODO: Add CancelOrder (no dir, remove specific LimitOrder in OrderBook)
+////////////////////////////////////////////////////////////////////////////////
+
+// TODO: Add CancelOrder (remove specific LimitOrder in OrderBook)
+// Just needs a way to uniquely identify LO
+struct CancelOrderReq
+{
+  int volume{};
+  int agent_id{};
+  Money price;
+  OrderDir order_dir{};
+  time_point timestamp{ now() };
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -64,7 +64,8 @@ Exchange::saturate()
 
   SPDLOG_DEBUG("Exchange::saturate: Gen Bids & Asks");
   // Bids
-  for (const int _ : std::views::iota(0, n_contracts_per_side)) {
+  for ([[maybe_unused]] const int _ :
+       std::views::iota(0, n_contracts_per_side)) {
     LimitOrderReq lor{ .volume = volume(gen),
                        .agent_id = agent_id(gen),
                        .price = bid_prices(gen),
@@ -73,7 +74,8 @@ Exchange::saturate()
   }
 
   // Asks
-  for (const int _ : std::views::iota(0, n_contracts_per_side)) {
+  for ([[maybe_unused]] const int _ :
+       std::views::iota(0, n_contracts_per_side)) {
     LimitOrderReq lor{ .volume = volume(gen),
                        .agent_id = agent_id(gen),
                        .price = ask_prices(gen),
@@ -101,8 +103,9 @@ Exchange::run()
     }
   }
   SPDLOG_DEBUG("After agents send requests: (current_order_requests)");
-  for ([[maybe_unused]] const auto& order_req : m_current_order_requests)
+  for ([[maybe_unused]] const auto& order_req : m_current_order_requests) {
     SPDLOG_TRACE("{}", order_req);
+  }
 
   SPDLOG_DEBUG("========================================");
   for (auto& order_request : m_current_order_requests) {

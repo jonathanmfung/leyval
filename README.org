@@ -266,3 +266,569 @@ clang-format -i --style=mozilla src/*
    29 |   return 100 * 2 * ((ask - bid) / (ask + bid));
       |          ^
 #+end_example
+
+* ~run-clang-tidy.py~
+https://github.com/llvm/llvm-project/blob/main/clang-tools-extra/clang-tidy/tool/run-clang-tidy.py
+
+#+begin_src sh :results output
+python run-clang-tidy.py \
+       -p . \
+       -checks='bugprone*, cppcoreguidelines* ,clang-analyzer* ,modernize* ,readability* ,\
+	   -modernize-use-trailing-return-type, -readability-avoid-const-params-in-decls, \
+	   -readability-identifier-length' \
+       -j 4 \
+       -style "Mozilla" -format
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Enabled checks:
+    bugprone-argument-comment
+    bugprone-assert-side-effect
+    bugprone-assignment-in-if-condition
+    bugprone-bad-signal-to-kill-thread
+    bugprone-bool-pointer-implicit-conversion
+    bugprone-branch-clone
+    bugprone-casting-through-void
+    bugprone-chained-comparison
+    bugprone-compare-pointer-to-member-virtual-function
+    bugprone-copy-constructor-init
+    bugprone-dangling-handle
+    bugprone-dynamic-static-initializers
+    bugprone-easily-swappable-parameters
+    bugprone-empty-catch
+    bugprone-exception-escape
+    bugprone-fold-init-type
+    bugprone-forward-declaration-namespace
+    bugprone-forwarding-reference-overload
+    bugprone-implicit-widening-of-multiplication-result
+    bugprone-inaccurate-erase
+    bugprone-inc-dec-in-conditions
+    bugprone-incorrect-enable-if
+    bugprone-incorrect-roundings
+    bugprone-infinite-loop
+    bugprone-integer-division
+    bugprone-lambda-function-name
+    bugprone-macro-parentheses
+    bugprone-macro-repeated-side-effects
+    bugprone-misplaced-operator-in-strlen-in-alloc
+    bugprone-misplaced-pointer-arithmetic-in-alloc
+    bugprone-misplaced-widening-cast
+    bugprone-move-forwarding-reference
+    bugprone-multi-level-implicit-pointer-conversion
+    bugprone-multiple-new-in-one-expression
+    bugprone-multiple-statement-macro
+    bugprone-narrowing-conversions
+    bugprone-no-escape
+    bugprone-non-zero-enum-to-bool-conversion
+    bugprone-not-null-terminated-result
+    bugprone-optional-value-conversion
+    bugprone-parent-virtual-call
+    bugprone-posix-return
+    bugprone-redundant-branch-condition
+    bugprone-reserved-identifier
+    bugprone-shared-ptr-array-mismatch
+    bugprone-signal-handler
+    bugprone-signed-char-misuse
+    bugprone-sizeof-container
+    bugprone-sizeof-expression
+    bugprone-spuriously-wake-up-functions
+    bugprone-standalone-empty
+    bugprone-string-constructor
+    bugprone-string-integer-assignment
+    bugprone-string-literal-with-embedded-nul
+    bugprone-stringview-nullptr
+    bugprone-suspicious-enum-usage
+    bugprone-suspicious-include
+    bugprone-suspicious-memory-comparison
+    bugprone-suspicious-memset-usage
+    bugprone-suspicious-missing-comma
+    bugprone-suspicious-realloc-usage
+    bugprone-suspicious-semicolon
+    bugprone-suspicious-string-compare
+    bugprone-swapped-arguments
+    bugprone-switch-missing-default-case
+    bugprone-terminating-continue
+    bugprone-throw-keyword-missing
+    bugprone-too-small-loop-variable
+    bugprone-unchecked-optional-access
+    bugprone-undefined-memory-manipulation
+    bugprone-undelegated-constructor
+    bugprone-unhandled-exception-at-new
+    bugprone-unhandled-self-assignment
+    bugprone-unique-ptr-array-mismatch
+    bugprone-unsafe-functions
+    bugprone-unused-local-non-trivial-variable
+    bugprone-unused-raii
+    bugprone-unused-return-value
+    bugprone-use-after-move
+    bugprone-virtual-near-miss
+    clang-analyzer-apiModeling.Errno
+    clang-analyzer-apiModeling.TrustNonnull
+    clang-analyzer-apiModeling.TrustReturnsNonnull
+    clang-analyzer-apiModeling.google.GTest
+    clang-analyzer-apiModeling.llvm.CastValue
+    clang-analyzer-apiModeling.llvm.ReturnValue
+    clang-analyzer-core.BitwiseShift
+    clang-analyzer-core.CallAndMessage
+    clang-analyzer-core.CallAndMessageModeling
+    clang-analyzer-core.DivideZero
+    clang-analyzer-core.DynamicTypePropagation
+    clang-analyzer-core.NonNullParamChecker
+    clang-analyzer-core.NonnilStringConstants
+    clang-analyzer-core.NullDereference
+    clang-analyzer-core.StackAddrEscapeBase
+    clang-analyzer-core.StackAddressEscape
+    clang-analyzer-core.UndefinedBinaryOperatorResult
+    clang-analyzer-core.VLASize
+    clang-analyzer-core.builtin.BuiltinFunctions
+    clang-analyzer-core.builtin.NoReturnFunctions
+    clang-analyzer-core.uninitialized.ArraySubscript
+    clang-analyzer-core.uninitialized.Assign
+    clang-analyzer-core.uninitialized.Branch
+    clang-analyzer-core.uninitialized.CapturedBlockVariable
+    clang-analyzer-core.uninitialized.NewArraySize
+    clang-analyzer-core.uninitialized.UndefReturn
+    clang-analyzer-cplusplus.InnerPointer
+    clang-analyzer-cplusplus.Move
+    clang-analyzer-cplusplus.NewDelete
+    clang-analyzer-cplusplus.NewDeleteLeaks
+    clang-analyzer-cplusplus.PlacementNew
+    clang-analyzer-cplusplus.PureVirtualCall
+    clang-analyzer-cplusplus.SelfAssignment
+    clang-analyzer-cplusplus.SmartPtrModeling
+    clang-analyzer-cplusplus.StringChecker
+    clang-analyzer-cplusplus.VirtualCallModeling
+    clang-analyzer-deadcode.DeadStores
+    clang-analyzer-fuchsia.HandleChecker
+    clang-analyzer-nullability.NullPassedToNonnull
+    clang-analyzer-nullability.NullReturnedFromNonnull
+    clang-analyzer-nullability.NullabilityBase
+    clang-analyzer-nullability.NullableDereferenced
+    clang-analyzer-nullability.NullablePassedToNonnull
+    clang-analyzer-nullability.NullableReturnedFromNonnull
+    clang-analyzer-optin.core.EnumCastOutOfRange
+    clang-analyzer-optin.cplusplus.UninitializedObject
+    clang-analyzer-optin.cplusplus.VirtualCall
+    clang-analyzer-optin.mpi.MPI-Checker
+    clang-analyzer-optin.osx.OSObjectCStyleCast
+    clang-analyzer-optin.osx.cocoa.localizability.EmptyLocalizationContextChecker
+    clang-analyzer-optin.osx.cocoa.localizability.NonLocalizedStringChecker
+    clang-analyzer-optin.performance.GCDAntipattern
+    clang-analyzer-optin.performance.Padding
+    clang-analyzer-optin.portability.UnixAPI
+    clang-analyzer-osx.API
+    clang-analyzer-osx.MIG
+    clang-analyzer-osx.NSOrCFErrorDerefChecker
+    clang-analyzer-osx.NumberObjectConversion
+    clang-analyzer-osx.OSObjectRetainCount
+    clang-analyzer-osx.ObjCProperty
+    clang-analyzer-osx.SecKeychainAPI
+    clang-analyzer-osx.cocoa.AtSync
+    clang-analyzer-osx.cocoa.AutoreleaseWrite
+    clang-analyzer-osx.cocoa.ClassRelease
+    clang-analyzer-osx.cocoa.Dealloc
+    clang-analyzer-osx.cocoa.IncompatibleMethodTypes
+    clang-analyzer-osx.cocoa.Loops
+    clang-analyzer-osx.cocoa.MissingSuperCall
+    clang-analyzer-osx.cocoa.NSAutoreleasePool
+    clang-analyzer-osx.cocoa.NSError
+    clang-analyzer-osx.cocoa.NilArg
+    clang-analyzer-osx.cocoa.NonNilReturnValue
+    clang-analyzer-osx.cocoa.ObjCGenerics
+    clang-analyzer-osx.cocoa.RetainCount
+    clang-analyzer-osx.cocoa.RetainCountBase
+    clang-analyzer-osx.cocoa.RunLoopAutoreleaseLeak
+    clang-analyzer-osx.cocoa.SelfInit
+    clang-analyzer-osx.cocoa.SuperDealloc
+    clang-analyzer-osx.cocoa.UnusedIvars
+    clang-analyzer-osx.cocoa.VariadicMethodTypes
+    clang-analyzer-osx.coreFoundation.CFError
+    clang-analyzer-osx.coreFoundation.CFNumber
+    clang-analyzer-osx.coreFoundation.CFRetainRelease
+    clang-analyzer-osx.coreFoundation.containers.OutOfBounds
+    clang-analyzer-osx.coreFoundation.containers.PointerSizedValues
+    clang-analyzer-security.FloatLoopCounter
+    clang-analyzer-security.cert.env.InvalidPtr
+    clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+    clang-analyzer-security.insecureAPI.SecuritySyntaxChecker
+    clang-analyzer-security.insecureAPI.UncheckedReturn
+    clang-analyzer-security.insecureAPI.bcmp
+    clang-analyzer-security.insecureAPI.bcopy
+    clang-analyzer-security.insecureAPI.bzero
+    clang-analyzer-security.insecureAPI.decodeValueOfObjCType
+    clang-analyzer-security.insecureAPI.getpw
+    clang-analyzer-security.insecureAPI.gets
+    clang-analyzer-security.insecureAPI.mkstemp
+    clang-analyzer-security.insecureAPI.mktemp
+    clang-analyzer-security.insecureAPI.rand
+    clang-analyzer-security.insecureAPI.strcpy
+    clang-analyzer-security.insecureAPI.vfork
+    clang-analyzer-unix.API
+    clang-analyzer-unix.DynamicMemoryModeling
+    clang-analyzer-unix.Errno
+    clang-analyzer-unix.Malloc
+    clang-analyzer-unix.MallocSizeof
+    clang-analyzer-unix.MismatchedDeallocator
+    clang-analyzer-unix.StdCLibraryFunctions
+    clang-analyzer-unix.Vfork
+    clang-analyzer-unix.cstring.BadSizeArg
+    clang-analyzer-unix.cstring.CStringModeling
+    clang-analyzer-unix.cstring.NullArg
+    clang-analyzer-valist.CopyToSelf
+    clang-analyzer-valist.Uninitialized
+    clang-analyzer-valist.Unterminated
+    clang-analyzer-valist.ValistBase
+    clang-analyzer-webkit.NoUncountedMemberChecker
+    clang-analyzer-webkit.RefCntblBaseVirtualDtor
+    clang-analyzer-webkit.UncountedLambdaCapturesChecker
+    cppcoreguidelines-avoid-c-arrays
+    cppcoreguidelines-avoid-capturing-lambda-coroutines
+    cppcoreguidelines-avoid-const-or-ref-data-members
+    cppcoreguidelines-avoid-do-while
+    cppcoreguidelines-avoid-goto
+    cppcoreguidelines-avoid-magic-numbers
+    cppcoreguidelines-avoid-non-const-global-variables
+    cppcoreguidelines-avoid-reference-coroutine-parameters
+    cppcoreguidelines-c-copy-assignment-signature
+    cppcoreguidelines-explicit-virtual-functions
+    cppcoreguidelines-init-variables
+    cppcoreguidelines-interfaces-global-init
+    cppcoreguidelines-macro-to-enum
+    cppcoreguidelines-macro-usage
+    cppcoreguidelines-misleading-capture-default-by-value
+    cppcoreguidelines-missing-std-forward
+    cppcoreguidelines-narrowing-conversions
+    cppcoreguidelines-no-malloc
+    cppcoreguidelines-no-suspend-with-lock
+    cppcoreguidelines-noexcept-destructor
+    cppcoreguidelines-noexcept-move-operations
+    cppcoreguidelines-noexcept-swap
+    cppcoreguidelines-non-private-member-variables-in-classes
+    cppcoreguidelines-owning-memory
+    cppcoreguidelines-prefer-member-initializer
+    cppcoreguidelines-pro-bounds-array-to-pointer-decay
+    cppcoreguidelines-pro-bounds-constant-array-index
+    cppcoreguidelines-pro-bounds-pointer-arithmetic
+    cppcoreguidelines-pro-type-const-cast
+    cppcoreguidelines-pro-type-cstyle-cast
+    cppcoreguidelines-pro-type-member-init
+    cppcoreguidelines-pro-type-reinterpret-cast
+    cppcoreguidelines-pro-type-static-cast-downcast
+    cppcoreguidelines-pro-type-union-access
+    cppcoreguidelines-pro-type-vararg
+    cppcoreguidelines-rvalue-reference-param-not-moved
+    cppcoreguidelines-slicing
+    cppcoreguidelines-special-member-functions
+    cppcoreguidelines-use-default-member-init
+    cppcoreguidelines-virtual-class-destructor
+    modernize-avoid-bind
+    modernize-avoid-c-arrays
+    modernize-concat-nested-namespaces
+    modernize-deprecated-headers
+    modernize-deprecated-ios-base-aliases
+    modernize-loop-convert
+    modernize-macro-to-enum
+    modernize-make-shared
+    modernize-make-unique
+    modernize-pass-by-value
+    modernize-raw-string-literal
+    modernize-redundant-void-arg
+    modernize-replace-auto-ptr
+    modernize-replace-disallow-copy-and-assign-macro
+    modernize-replace-random-shuffle
+    modernize-return-braced-init-list
+    modernize-shrink-to-fit
+    modernize-type-traits
+    modernize-unary-static-assert
+    modernize-use-auto
+    modernize-use-bool-literals
+    modernize-use-constraints
+    modernize-use-default-member-init
+    modernize-use-emplace
+    modernize-use-equals-default
+    modernize-use-equals-delete
+    modernize-use-nodiscard
+    modernize-use-noexcept
+    modernize-use-nullptr
+    modernize-use-override
+    modernize-use-starts-ends-with
+    modernize-use-std-numbers
+    modernize-use-std-print
+    modernize-use-transparent-functors
+    modernize-use-uncaught-exceptions
+    modernize-use-using
+    readability-avoid-nested-conditional-operator
+    readability-avoid-return-with-void-value
+    readability-avoid-unconditional-preprocessor-if
+    readability-braces-around-statements
+    readability-const-return-type
+    readability-container-contains
+    readability-container-data-pointer
+    readability-container-size-empty
+    readability-convert-member-functions-to-static
+    readability-delete-null-pointer
+    readability-duplicate-include
+    readability-else-after-return
+    readability-function-cognitive-complexity
+    readability-function-size
+    readability-identifier-naming
+    readability-implicit-bool-conversion
+    readability-inconsistent-declaration-parameter-name
+    readability-isolate-declaration
+    readability-magic-numbers
+    readability-make-member-function-const
+    readability-misleading-indentation
+    readability-misplaced-array-index
+    readability-named-parameter
+    readability-non-const-parameter
+    readability-operators-representation
+    readability-qualified-auto
+    readability-redundant-access-specifiers
+    readability-redundant-casting
+    readability-redundant-control-flow
+    readability-redundant-declaration
+    readability-redundant-function-ptr-dereference
+    readability-redundant-inline-specifier
+    readability-redundant-member-init
+    readability-redundant-preprocessor
+    readability-redundant-smartptr-get
+    readability-redundant-string-cstr
+    readability-redundant-string-init
+    readability-reference-to-constructed-temporary
+    readability-simplify-boolean-expr
+    readability-simplify-subscript-expr
+    readability-static-accessed-through-instance
+    readability-static-definition-in-anonymous-namespace
+    readability-string-compare
+    readability-suspicious-call-argument
+    readability-uniqueptr-delete-release
+    readability-uppercase-literal-suffix
+    readability-use-anyofallof
+
+Running clang-tidy for 6 files out of 6 in compilation database ...
+[1/6][17.0s] /usr/bin/clang-tidy -checks=bugprone*, cppcoreguidelines* ,clang-analyzer* ,modernize* ,readability* ,\
+	   -modernize-use-trailing-return-type, -readability-avoid-const-params-in-decls, \
+	   -readability-identifier-length -p=. /home/jonat/cpp/leyval/src/main.cpp
+/home/jonat/cpp/leyval/src/main.cpp:18:1: warning: an exception may be thrown in function 'main' which should not throw exceptions [bugprone-exception-escape]
+   18 | main()
+      | ^
+/home/jonat/cpp/leyval/src/main.cpp:27:43: warning: 800 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   27 |   std::uniform_int_distribution<> capital(800, 1'200);
+      |                                           ^
+/home/jonat/cpp/leyval/src/main.cpp:27:48: warning: 1'200 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   27 |   std::uniform_int_distribution<> capital(800, 1'200);
+      |                                                ^
+/home/jonat/cpp/leyval/src/main.cpp:32:18: warning: Value stored to '_' during its initialization is never read [clang-analyzer-deadcode.DeadStores]
+   32 |   for (const int _ : std::views::iota(0, n_agents)) {
+      |                  ^ ~
+/home/jonat/cpp/leyval/src/main.cpp:32:18: note: Value stored to '_' during its initialization is never read
+   32 |   for (const int _ : std::views::iota(0, n_agents)) {
+      |                  ^ ~
+79939 warnings generated.
+Suppressed 79981 warnings (79933 in non-user code, 48 NOLINT).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+
+[2/6][19.2s] /usr/bin/clang-tidy -checks=bugprone*, cppcoreguidelines* ,clang-analyzer* ,modernize* ,readability* ,\
+	   -modernize-use-trailing-return-type, -readability-avoid-const-params-in-decls, \
+	   -readability-identifier-length -p=. /home/jonat/cpp/leyval/src/matching_system.cpp
+/home/jonat/cpp/leyval/src/matching_system.cpp:10:37: warning: method 'format' can be made static [readability-convert-member-functions-to-static]
+   10 | fmt::formatter<TransactionRequest>::format(const TransactionRequest& treq,
+      |                                     ^
+   11 |                                            format_context& ctx) const
+      |                                                                 ~~~~~
+/home/jonat/cpp/leyval/src/matching_system.cpp:23:33: warning: method 'format' can be made static [readability-convert-member-functions-to-static]
+   23 | fmt::formatter<MatchingSystem>::format(const MatchingSystem& match_sys,
+      |                                 ^
+   24 |                                        format_context& ctx) const
+      |                                                             ~~~~~
+/home/jonat/cpp/leyval/src/matching_system.cpp:81:13: warning: do not use 'else' after 'break' [readability-else-after-return]
+   81 |           } else {
+      |             ^~~~~~
+   82 |             ++it;
+      |             ~~~~~
+   83 |           };
+      |           ~
+/home/jonat/cpp/leyval/src/matching_system.cpp:87:11: warning: unnecessary temporary object created while calling emplace_back [modernize-use-emplace]
+   87 |           TransactionRequest(mor.agent_id,
+      |           ^~~~~~~~~~~~~~~~~~~
+   88 |                              earliest_best_order->second.agent_id,
+   89 |                              earliest_best_order->second.volume,
+   90 |                              best_price,
+   91 |                              mor.order_dir));
+      |                                           ~
+/home/jonat/cpp/leyval/src/matching_system.cpp:108:42: warning: 5 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+  108 |       [[maybe_unused]] int total_orders{ 5 };
+      |                                          ^
+75894 warnings generated.
+Suppressed 75932 warnings (75886 in non-user code, 46 NOLINT).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+
+[3/6][20.1s] /usr/bin/clang-tidy -checks=bugprone*, cppcoreguidelines* ,clang-analyzer* ,modernize* ,readability* ,\
+	   -modernize-use-trailing-return-type, -readability-avoid-const-params-in-decls, \
+	   -readability-identifier-length -p=. /home/jonat/cpp/leyval/src/order_book.cpp
+/home/jonat/cpp/leyval/src/order_book.cpp:16:45: warning: statement should be inside braces [readability-braces-around-statements]
+   16 |   for (const auto& pair : order_book.m_bids)
+      |                                             ^
+      |                                              {
+   17 |     ++bid_counts[pair.first];
+      |
+/home/jonat/cpp/leyval/src/order_book.cpp:19:45: warning: statement should be inside braces [readability-braces-around-statements]
+   19 |   for (const auto& pair : order_book.m_asks)
+      |                                             ^
+      |                                              {
+   20 |     ++ask_counts[pair.first];
+      |
+/home/jonat/cpp/leyval/src/order_book.cpp:27:28: warning: method 'format' can be made static [readability-convert-member-functions-to-static]
+   27 | fmt::formatter<OrderBook>::format(const OrderBook& order_book,
+      |                            ^
+   28 |                                   format_context& ctx) const
+      |                                                        ~~~~~
+/home/jonat/cpp/leyval/src/order_book.cpp:44:40: warning: statement should be inside braces [readability-braces-around-statements]
+   44 |   if (m_bids.empty() && m_asks.empty())
+      |                                        ^
+      |                                         {
+   45 |     return 1;
+      |
+/home/jonat/cpp/leyval/src/order_book.cpp:81:10: warning: 100 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   81 |   return 100 * 2 * ((ask - bid) / (ask + bid));
+      |          ^
+/home/jonat/cpp/leyval/src/order_book.cpp:89:14: warning: narrowing conversion from 'size_type' (aka 'unsigned long') to signed type 'int' is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+   89 |       return m_bids.size();
+      |              ^
+/home/jonat/cpp/leyval/src/order_book.cpp:91:14: warning: narrowing conversion from 'size_type' (aka 'unsigned long') to signed type 'int' is implementation-defined [bugprone-narrowing-conversions,cppcoreguidelines-narrowing-conversions]
+   91 |       return m_asks.size();
+      |              ^
+75798 warnings generated.
+Suppressed 75834 warnings (75788 in non-user code, 46 NOLINT).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+
+[4/6][20.5s] /usr/bin/clang-tidy -checks=bugprone*, cppcoreguidelines* ,clang-analyzer* ,modernize* ,readability* ,\
+	   -modernize-use-trailing-return-type, -readability-avoid-const-params-in-decls, \
+	   -readability-identifier-length -p=. /home/jonat/cpp/leyval/src/exchange.cpp
+/home/jonat/cpp/leyval/src/exchange.cpp:28:27: warning: method 'format' can be made static [readability-convert-member-functions-to-static]
+   28 | fmt::formatter<Exchange>::format(const Exchange& exchange, format_context& ctx)
+      |                           ^
+   29 |   const -> format_context::iterator
+      |   ~~~~~
+/home/jonat/cpp/leyval/src/exchange.cpp:59:46: warning: 90 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   59 |   std::uniform_int_distribution<> bid_prices(90, 98);
+      |                                              ^
+/home/jonat/cpp/leyval/src/exchange.cpp:59:50: warning: 98 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   59 |   std::uniform_int_distribution<> bid_prices(90, 98);
+      |                                                  ^
+/home/jonat/cpp/leyval/src/exchange.cpp:60:46: warning: 102 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   60 |   std::uniform_int_distribution<> ask_prices(102, 110);
+      |                                              ^
+/home/jonat/cpp/leyval/src/exchange.cpp:60:51: warning: 110 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   60 |   std::uniform_int_distribution<> ask_prices(102, 110);
+      |                                                   ^
+/home/jonat/cpp/leyval/src/exchange.cpp:67:18: warning: Value stored to '_' during its initialization is never read [clang-analyzer-deadcode.DeadStores]
+   67 |   for (const int _ : std::views::iota(0, n_contracts_per_side)) {
+      |                  ^ ~
+/home/jonat/cpp/leyval/src/exchange.cpp:67:18: note: Value stored to '_' during its initialization is never read
+   67 |   for (const int _ : std::views::iota(0, n_contracts_per_side)) {
+      |                  ^ ~
+/home/jonat/cpp/leyval/src/exchange.cpp:76:18: warning: Value stored to '_' during its initialization is never read [clang-analyzer-deadcode.DeadStores]
+   76 |   for (const int _ : std::views::iota(0, n_contracts_per_side)) {
+      |                  ^ ~
+/home/jonat/cpp/leyval/src/exchange.cpp:76:18: note: Value stored to '_' during its initialization is never read
+   76 |   for (const int _ : std::views::iota(0, n_contracts_per_side)) {
+      |                  ^ ~
+/home/jonat/cpp/leyval/src/exchange.cpp:104:74: warning: statement should be inside braces [readability-braces-around-statements]
+  104 |   for ([[maybe_unused]] const auto& order_req : m_current_order_requests)
+      |                                                                          ^
+      |                                                                           {
+  105 |     SPDLOG_TRACE("{}", order_req);
+      |
+/home/jonat/cpp/leyval/src/exchange.cpp:144:7: warning: implicit conversion 'pointer' (aka 'Agent *') -> 'bool' [readability-implicit-bool-conversion]
+  144 |   if (asker.get() && bidder.get()) {
+      |       ^
+      |       (           != nullptr)
+/home/jonat/cpp/leyval/src/exchange.cpp:144:22: warning: implicit conversion 'pointer' (aka 'Agent *') -> 'bool' [readability-implicit-bool-conversion]
+  144 |   if (asker.get() && bidder.get()) {
+      |                      ^
+      |                      (            != nullptr)
+/home/jonat/cpp/leyval/src/exchange.cpp:151:39: warning: statement should be inside braces [readability-braces-around-statements]
+  151 |     for (const auto& agent : m_agents)
+      |                                       ^
+      |                                        {
+  152 |       SPDLOG_ERROR("{}", *agent);
+      |
+79783 warnings generated.
+Suppressed 79814 warnings (79768 in non-user code, 46 NOLINT).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+
+[5/6][14.4s] /usr/bin/clang-tidy -checks=bugprone*, cppcoreguidelines* ,clang-analyzer* ,modernize* ,readability* ,\
+	   -modernize-use-trailing-return-type, -readability-avoid-const-params-in-decls, \
+	   -readability-identifier-length -p=. /home/jonat/cpp/leyval/src/agent.cpp
+/home/jonat/cpp/leyval/src/agent.cpp:16:24: warning: method 'format' can be made static [readability-convert-member-functions-to-static]
+   16 | fmt::formatter<Agent>::format(const Agent& agent, format_context& ctx) const
+      |                        ^                                               ~~~~~
+/home/jonat/cpp/leyval/src/agent.cpp:37:46: warning: 5 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   37 |   reqs.emplace_back(LimitOrderReq{ .volume = 5,
+      |                                              ^
+/home/jonat/cpp/leyval/src/agent.cpp:41:46: warning: 5 is a magic number; consider replacing it with a named constant [cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers]
+   41 |   reqs.emplace_back(LimitOrderReq{ .volume = 5,
+      |                                              ^
+/home/jonat/cpp/leyval/src/agent.cpp:55:12: warning: 2 adjacent parameters of 'buy' of similar type are easily swapped by mistake [bugprone-easily-swappable-parameters]
+   55 | Agent::buy(const int volume, const Money total_price)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jonat/cpp/leyval/src/agent.cpp:55:22: note: the first parameter in the range is 'volume'
+   55 | Agent::buy(const int volume, const Money total_price)
+      |                      ^~~~~~
+/home/jonat/cpp/leyval/src/agent.cpp:55:42: note: the last parameter in the range is 'total_price'
+   55 | Agent::buy(const int volume, const Money total_price)
+      |                                          ^~~~~~~~~~~
+/home/jonat/cpp/leyval/src/agent.cpp:55:12: note: after resolving type aliases, 'const int' and 'const Money' are the same
+   55 | Agent::buy(const int volume, const Money total_price)
+      |            ^
+/home/jonat/cpp/leyval/src/agent.cpp:61:13: warning: 2 adjacent parameters of 'sell' of similar type are easily swapped by mistake [bugprone-easily-swappable-parameters]
+   61 | Agent::sell(const int volume, const Money total_price)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jonat/cpp/leyval/src/agent.cpp:61:23: note: the first parameter in the range is 'volume'
+   61 | Agent::sell(const int volume, const Money total_price)
+      |                       ^~~~~~
+/home/jonat/cpp/leyval/src/agent.cpp:61:43: note: the last parameter in the range is 'total_price'
+   61 | Agent::sell(const int volume, const Money total_price)
+      |                                           ^~~~~~~~~~~
+/home/jonat/cpp/leyval/src/agent.cpp:61:13: note: after resolving type aliases, 'const int' and 'const Money' are the same
+   61 | Agent::sell(const int volume, const Money total_price)
+      |             ^
+74475 warnings generated.
+Suppressed 74510 warnings (74464 in non-user code, 46 NOLINT).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+
+[6/6][18.1s] /usr/bin/clang-tidy -checks=bugprone*, cppcoreguidelines* ,clang-analyzer* ,modernize* ,readability* ,\
+	   -modernize-use-trailing-return-type, -readability-avoid-const-params-in-decls, \
+	   -readability-identifier-length -p=. /home/jonat/cpp/leyval/src/order.cpp
+/home/jonat/cpp/leyval/src/order.cpp:5:1: warning: do not declare C-style arrays, use std::array<> instead [cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays]
+    5 | NLOHMANN_JSON_SERIALIZE_ENUM(OrderDir,
+      | ^
+/home/jonat/cpp/leyval/_deps/json-src/include/nlohmann/detail/macro_scope.hpp:220:22: note: expanded from macro 'NLOHMANN_JSON_SERIALIZE_ENUM'
+  220 |         static const std::pair<ENUM_TYPE, BasicJsonType> m[] = __VA_ARGS__;                     \
+      |                      ^
+/home/jonat/cpp/leyval/src/order.cpp:5:1: warning: use c++17 style variable templates [modernize-type-traits]
+    5 | NLOHMANN_JSON_SERIALIZE_ENUM(OrderDir,
+      | ^
+/home/jonat/cpp/leyval/_deps/json-src/include/nlohmann/detail/macro_scope.hpp:219:23: note: expanded from macro 'NLOHMANN_JSON_SERIALIZE_ENUM'
+  219 |         static_assert(std::is_enum<ENUM_TYPE>::value, #ENUM_TYPE " must be an enum!");          \
+      |                       ^
+/home/jonat/cpp/leyval/src/order.cpp:14:27: warning: method 'format' can be made static [readability-convert-member-functions-to-static]
+   14 | fmt::formatter<OrderDir>::format(const OrderDir& od, format_context& ctx) const
+      |                           ^                                               ~~~~~
+/home/jonat/cpp/leyval/src/order.cpp:51:33: warning: method 'format' can be made static [readability-convert-member-functions-to-static]
+   51 | fmt::formatter<MarketOrderReq>::format(const MarketOrderReq& mor,
+      |                                 ^
+   52 |                                        format_context& ctx) const
+      |                                                             ~~~~~
+/home/jonat/cpp/leyval/src/order.cpp:89:32: warning: method 'format' can be made static [readability-convert-member-functions-to-static]
+   89 | fmt::formatter<LimitOrderReq>::format(const LimitOrderReq& lor,
+      |                                ^
+   90 |                                       format_context& ctx) const
+      |                                                            ~~~~~
+76867 warnings generated.
+Suppressed 76904 warnings (76858 in non-user code, 46 NOLINT).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
+
+#+end_example

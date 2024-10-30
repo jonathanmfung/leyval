@@ -50,7 +50,8 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
       // TODO: Check that iota should start at 0
       for ([[maybe_unused]] const int i : std::views::iota(0, mor.volume)) {
         SPDLOG_TRACE("MS::(FIFO) Loop {}", i);
-
+	// TODO: Check that order direction is correct
+	// e.g. a Bid MarketOrder actually takes from the Asks LimitOrders
         auto best_orders{ order_book.orders_at_best_price(mor.order_dir) };
         Money best_price =
           best_orders.first->first; // best_orders.first_iterator->key

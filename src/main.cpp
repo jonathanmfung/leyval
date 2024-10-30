@@ -12,6 +12,7 @@
 #include "order_book.hpp"
 
 // TODO: add global project namespace
+// TODO: add Constants namespace
 
 int
 main()

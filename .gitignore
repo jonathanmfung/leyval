@@ -9,3 +9,4 @@
 /_deps/
 /ltximg/
 /data/
+/run-clang-tidy.py

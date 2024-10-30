@@ -13,13 +13,15 @@ to_json(json& j, const OrderBook& order_book)
   std::map<Money, int> bid_counts;
   std::map<Money, int> ask_counts;
 
-  for (const auto& pair : order_book.m_bids)
+  for (const auto& pair : order_book.m_bids) {
     ++bid_counts[pair.first];
+  }
 
-  for (const auto& pair : order_book.m_asks)
+  for (const auto& pair : order_book.m_asks) {
     ++ask_counts[pair.first];
+  }
 
-  j = json{ { "bid_counts",  bid_counts}, { "ask_counts",  ask_counts}};
+  j = json{ { "bid_counts", bid_counts }, { "ask_counts", ask_counts } };
 }
 static_assert(Serializable<OrderBook>);
 
@@ -41,8 +43,9 @@ OrderBook::current_best_price(OrderDir order_dir) const
 {
   // TODO Maybe handle this init case better? optional? don't run on init?
   // Init case
-  if (m_bids.empty() && m_asks.empty())
+  if (m_bids.empty() && m_asks.empty()) {
     return 1;
+  }
 
   Money best_price{};
   switch (order_dir) {
@@ -77,8 +80,9 @@ OrderBook::quoted_spread() const
   // Expressed in %.
   // (x-y)/midpoint == 2(x-y)/(x+y)
   const Money ask{ current_best_price(OrderDir::Ask) };
-  const Money bid{ current_best_price(OrderDir::Bid) };
-  return 100 * 2 * ((ask - bid) / (ask + bid));
+  const Money bid{current_best_price(OrderDir::Bid)};
+  const int pct {100};
+  return pct * 2 * ((ask - bid) / (ask + bid));
 }
 
 [[nodiscard]] int
@@ -86,9 +90,9 @@ OrderBook::num_orders(OrderDir order_dir) const
 {
   switch (order_dir) {
     case OrderDir::Bid:
-      return m_bids.size();
+      return std::ssize(m_bids);
     case OrderDir::Ask:
-      return m_asks.size();
+      return std::ssize(m_asks);
     default:
       throw OrderDirInvalidValue("OrderBook::num_orders");
   }

@@ -21,23 +21,6 @@ public:
   {
   }
 
-  // clang-format off
-  // NOTE:
-  // Each tick:
-  // - Loop over m_agents, with agent.generate_orders(order_book) -> Optional [OrderReq]
-  //   - agent uses information from order_book to make decision
-  //   - For each agent, push [OrderReq] onto current_order_requests (vector)
-  //     - (Optional since agent can decide to noop, the ticks are quick)
-  // - Loop over current_order_requests, with order_book.receive(OrderReq)
-  //   - case LimitOrderReq: -> {Price : LimitOrder} and inserts into order_book Bid/AskContainer
-  //     - Handle case of agent inserting into existing price_level (10 : v=2, id=foo) -> (10 : v=5, id=foo)
-  //   - case MarketOrderReq (MatchingSystem)
-  //     - MatchingSystem(MarketOrder, OrderBook) -> [TransactionRequest{bidder, asker, volume, total_price}]
-  //     - Loop Exchange.execute(TransactionRequest): updates bidder/asker by id,
-  //                                                  order_book by popping off Bid/AskContainer with agent_id at price_level
-  // - current_order_requests.clear()
-  // clang-format on
-
   // TODO: Add static tick count to help calculate agent's inter-arrival time
   void run();
 
