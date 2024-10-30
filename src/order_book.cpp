@@ -3,9 +3,9 @@
 #include <map>
 
 #include "my_spdlog.hpp"
-#include "serializable.hpp"
 #include "order.hpp"
 #include "order_book.hpp"
+#include "serializable.hpp"
 
 void
 to_json(json& j, const OrderBook& order_book)

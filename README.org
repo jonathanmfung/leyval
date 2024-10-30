@@ -16,9 +16,8 @@ build/release/leyval
 
 * TODOs
 - [ ] Visualization (python matplotlib)
-- [ ] Logger (spdlog)
+- [X] Logger (spdlog)
 - [ ] Unit Tests (googltest)
-
 
 * Sources
 ** An Empirical Analysis of the Limit Order Book and the Order Flow in the Paris Bourse

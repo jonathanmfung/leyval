@@ -4,6 +4,7 @@
 
 #include "my_spdlog.hpp"
 #include "serializable.hpp"
+#include <spdlog/common.h>
 
 #include "agent.hpp"
 #include "exchange.hpp"
