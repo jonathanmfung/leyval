@@ -9,6 +9,7 @@ to_json(json& j, const Agent& agent)
             { "capital", agent.m_capital },
             { "shares", agent.m_shares } };
 }
+
 static_assert(Serializable<Agent>);
 
 auto
@@ -18,17 +19,9 @@ fmt::formatter<Agent>::format(const Agent& agent, format_context& ctx) const
   return fmt::format_to(ctx.out(), "Agent {}", agent.get_id());
 }
 
-template<typename T>
-concept isAgent = requires(T a) {
-  { a.m_id } -> std::same_as<int>;
-  { a.m_capital } -> std::same_as<Money>;
-  { a.m_shares } -> std::same_as<int>;
-
-  { a.generate_order } -> std::same_as<std::vector<OrderReq_t>>;
-};
-
 [[nodiscard]] std::vector<OrderReq_t>
-Agent::generate_order([[maybe_unused]] const OrderBook::State& ob_state) const
+Agent_JFProvider::generate_order(
+  [[maybe_unused]] const OrderBook::State& ob_state) const
 {
   // TODO: Implement generate_order
   // std::cout << "Agent::generate_order "

@@ -1,3 +1,4 @@
+#include <memory>
 #include <random>
 #include <ranges>
 
@@ -23,14 +24,14 @@ main()
   std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
   std::uniform_int_distribution<> capital(800, 1'200);
 
-  std::vector<Agent> agents{};
+  std::vector<Exchange::Agent_t> agents{};
 
   const int n_agents{ 10 };
-  for (const int _ : std::views::iota(0, n_agents)) {
-    agents.emplace_back(Agent{ capital(gen) });
+  for ([[maybe_unused]] const int _ : std::views::iota(0, n_agents)) {
+    agents.emplace_back(std::make_unique<Agent_JFProvider>(capital(gen)));
   }
 
-  Exchange exch{ OrderBook{}, agents, MatchingSystem{ MatchingSystem::fifo } };
+  Exchange exch{ OrderBook{}, std::move(agents), MatchingSystem{ MatchingSystem::fifo } };
 
   exch.saturate();
 

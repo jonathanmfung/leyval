@@ -49,11 +49,11 @@ Exchange::saturate()
   // NOTE: Strong assumption that no agent dies in-bewtween Exhange constructor
   // and saturate
   //       (and relying on Agent::new_id being sequential)
-  auto max_agent{ std::ranges::max_element(
-    m_agents, [](const Agent& a1, const Agent& a2) {
-      return a1.get_id() < a2.get_id();
-    }) };
-  std::uniform_int_distribution<> agent_id(1, max_agent->get_id());
+  auto max_agent{ std::ranges::max_element(m_agents,
+                                           [](const auto& a1, const auto& a2) {
+                                             return a1->get_id() < a2->get_id();
+                                           }) };
+  std::uniform_int_distribution<> agent_id(1, (*max_agent)->get_id());
 
   // Money price;
   std::uniform_int_distribution<> bid_prices(90, 98);
@@ -90,8 +90,8 @@ Exchange::run()
   const OrderBook::State ob_state{ m_order_book.update_get_state() };
 
   for (const auto& agent : m_agents) {
-    SPDLOG_TRACE("Loop {}", agent);
-    std::vector<OrderReq_t> new_order_reqs{ agent.generate_order(ob_state) };
+    SPDLOG_TRACE("Loop {}", *agent);
+    std::vector<OrderReq_t> new_order_reqs{ agent->generate_order(ob_state) };
     if (!new_order_reqs.empty()) {
       SPDLOG_TRACE("new_order is not empty");
       for (const OrderReq_t order_req : new_order_reqs) {
@@ -126,36 +126,12 @@ Exchange::run()
   m_current_order_requests.clear();
 }
 
-std::optional<std::reference_wrapper<Agent>>
-Exchange::find_agent(const int agent_id)
-{
-  SPDLOG_DEBUG("Exchange::find_agent - For a_id: {}", agent_id);
-  auto is_id = [agent_id](const Agent& elem) {
-    return elem.get_id() == agent_id;
-  };
-  if (auto res = std::ranges::find_if(m_agents, is_id);
-      res != std::end(m_agents)) {
-    SPDLOG_TRACE("Exchange::find_agent - Found {}", *res);
-    return std::make_optional(std::ref(*res));
-  }
-  SPDLOG_DEBUG("Exchange::find_agent - Found NONE");
-  return std::nullopt;
-}
-
 void
 Exchange::execute(TransactionRequest trans)
 {
-  auto asker{ find_agent(trans.asker_id) };
-  auto bidder{ find_agent(trans.bidder_id) };
+  // NOTE: Treat asker/bidder_id as index of m_agents
+  //       Strongly assumes m_agents is in same order as Agent::new_id
 
-  if (asker.has_value() && bidder.has_value()) {
-    asker->get().sell(trans.volume, trans.price);
-    bidder->get().buy(trans.volume, trans.price);
-  } else {
-
-    SPDLOG_ERROR("Exchange::execute could not find asker ({}) ior bidder ({})",
-                 trans.asker_id,
-                 trans.bidder_id);
-    throw std::logic_error("");
-  }
+  m_agents[trans.asker_id]->sell(trans.volume, trans.price);
+  m_agents[trans.bidder_id]->buy(trans.volume, trans.price);
 }

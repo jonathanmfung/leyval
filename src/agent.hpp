@@ -5,7 +5,6 @@
 #include "order.hpp"
 #include "order_book.hpp"
 
-
 class Agent
 {
 public:
@@ -16,10 +15,12 @@ public:
   {
   }
 
+  virtual ~Agent() = default;
+
   // generate instance of variant: https://stackoverflow.com/a/74303228
   // NOTE empty vector means agent is choosing to noop
-  [[nodiscard]] std::vector<OrderReq_t> generate_order(
-    const OrderBook::State& ob_state) const;
+  [[nodiscard]] virtual std::vector<OrderReq_t> generate_order(
+    const OrderBook::State& ob_state) const = 0;
 
   void buy(const int volume, const Money total_price);
   void sell(const int volume, const Money total_price);
@@ -33,7 +34,7 @@ private:
 
   static int new_id()
   {
-    static int id{ 0 };
+    static int id{ -1 };
     return ++id;
   }
 
@@ -43,13 +44,28 @@ private:
 template<>
 struct fmt::formatter<Agent> : fmt::formatter<std::string_view>
 {
-  auto format(const Agent& agent, format_context& ctx) const -> format_context::iterator;
+  auto format(const Agent& agent,
+              format_context& ctx) const -> format_context::iterator;
 };
 
 /////////////////////////////////////
+// https://open.uct.ac.za/items/574390a1-2466-4128-8920-6261505220e0
+// class Agent_JericevichFundamentalist : public Agent{};
+// class Agent_JericevichChartist : public Agent{};
+// class Agent_JericevichProvider : public Agent{};
 
-class Agent_JericevichFundamentalist : public Agent{};
-class Agent_JericevichChartist : public Agent{};
-class Agent_JericevichProvider : public Agent{};
+// https://arxiv.org/pdf/cond-mat/0103600
+// class Agent_Raberto : public Agent{};
 
-class Agent_Raberto : public Agent{};
+//
+class Agent_JFProvider : public Agent
+{
+public:
+  Agent_JFProvider(Money capital)
+    : Agent{ capital }
+  {
+  }
+  [[nodiscard]] virtual std::vector<OrderReq_t> generate_order(
+    const OrderBook::State& ob_state) const;
+};
+// class Agent_JFTaker : public Agent{};
