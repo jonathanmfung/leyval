@@ -4,11 +4,13 @@
 - Focus on procedural fairness of various matching systems
 - Written in C++20
 
-** Requirements
-- [[https://github.com/gabime/spdlog?tab=readme-ov-file#install][spdlog]]
-
+** Dev
+This helps clangd (in emacs/eglot) find system and lib includes.
+#+begin_src bash :noeval
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+#+end_src
 ** Usage
-#+begin_src sh :noeval
+#+begin_src bash :noeval
 cmake --preset release
 cmake --build --preset release
 build/release/leyval
@@ -21,7 +23,7 @@ build/release/leyval
 
 * Sources
 ** An Empirical Analysis of the Limit Order Book and the Order Flow in the Paris Bourse
- https://sci-hub.ru/10.1111/j.1540-6261.1995.tb05192.x
+https://sci-hub.ru/10.1111/j.1540-6261.1995.tb05192.x
 #+begin_quote
 Investors can submit limit orders at any price...
 #+end_quote
