@@ -1,6 +1,7 @@
 #include <memory>
 #include <random>
 #include <ranges>
+#include <filesystem>
 
 #include "my_spdlog.hpp"
 #include "serializable.hpp"
@@ -47,7 +48,9 @@ main()
     SPDLOG_INFO("{}", exch);
   }
 
-  std::ofstream out_file("data/pretty.json");
+  const std::filesystem::path DATA_DIR {"data"};
+  std::filesystem::create_directory(DATA_DIR);
+  std::ofstream out_file(DATA_DIR / "pretty.json");
   out_file << std::setw(2) << exchange_states << std::endl;
 
   return 0;
