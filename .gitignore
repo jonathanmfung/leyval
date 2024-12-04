@@ -11,3 +11,4 @@
 /data/
 /run-clang-tidy.py
 /result
+/scripts/result
