@@ -10,7 +10,10 @@ in
 stdenv.mkDerivation {
   name = "leyval";
   src = ./.;
-  nativeBuildInputs = [ pkgs.cmake ];
+  nativeBuildInputs = [
+    pkgs.cmake
+    pkgs.mold-wrapped
+  ];
   buildInputs = with pkgs; [
     spdlog
     fmt
