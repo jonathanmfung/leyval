@@ -59,13 +59,16 @@ plt.savefig(IMG_DIR + "agents.png")
 fig, ax = plt.subplots(figsize=(8, 4.5), dpi=200, layout='constrained')
 
 bids_hist = ax.bar(x=clean_book.loc[0]['bids'].index, height=clean_book.loc[0]['bids'],
-                   color='green', label='Bids')
+                   color='green', label='Bids', animated=True)
 asks_hist = ax.bar(x=clean_book.loc[0]['asks'].index, height=clean_book.loc[0]['asks'],
-                   color='red', label='Asks')
-title = ax.text(x=0.5, y=0.8, s="Tick #0", ha='center', transform=ax.transAxes)
-ax.set(ylim=(0, clean_book.max().max() * 1.1),
+                   color='red', label='Asks', animated=True)
+title = ax.text(x=0.5, y=0.8, s="Tick #0", ha='center', transform=ax.transAxes, animated=True)
+
+def init():
+    ax.set(ylim=(0, clean_book.max().max() * 1.1),
        xlabel='Price ($)', ylabel='Quantity')
-ax.legend()
+    ax.legend()
+    return [r for r in bids_hist] + [r for r in asks_hist] + [title]
 
 def update(frame_num):
     title.set_text(f"Tick #{frame_num}")
@@ -73,8 +76,10 @@ def update(frame_num):
         rect.set_height(quantity)
     for rect, quantity in zip(asks_hist.patches, clean_book.loc[frame_num]['asks']):
         rect.set_height(quantity)
-    return (bids_hist, asks_hist, title)
+    return [r for r in bids_hist] + [r for r in asks_hist] + [title]
 
-ani = animation.FuncAnimation(fig=fig, func=update, init_func=lambda:None,
-                              frames=len(clean_book), interval=200)
+ani = animation.FuncAnimation(fig=fig, func=update, init_func=init,
+                              frames=len(clean_book), interval=200, blit=True)
+# TODO: Switch to ImageMagickWriter or FFMpegWriter for performance
+#       https://matplotlib.org/stable/api/animation_api.html#writer-classes
 ani.save(IMG_DIR + "book.gif")
