@@ -16,7 +16,6 @@ def read_agents(agents):
 def read_book(book):
     bids = pd.Series([x[1] for x in book['bid_counts']], index = [x[0] for x in book['bid_counts']], name='bids')
     asks = pd.Series([x[1] for x in book['ask_counts']], index = [x[0] for x in book['ask_counts']], name='asks')
-
     return pd.concat([bids, asks], keys=['bids', 'asks'])
 
 data_agents = []
@@ -25,8 +24,12 @@ for run_tick in raw_json:
     data_agents.append(read_agents(run_tick['agents']))
     data_book.append(read_book(run_tick['order_book']))
 
-print(data_agents[0])
-print(data_book[0])
+## Clean
+clean_agents = pd.concat(data_agents, keys = range(len(data_agents))).drop(columns='id')
+clean_agents.index = clean_agents.index.set_names(['time', 'id'])
+
+clean_book = pd.concat(data_book, axis=1).T.fillna(0).astype("Int64")
+clean_book.index = clean_book.index.set_names('time')
 
 ## plot agents
 agents = data_agents[2]
