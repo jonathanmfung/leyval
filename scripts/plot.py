@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.animation as animation
 
 DATA_FILE = "../data/pretty.json"
 IMG_DIR = "img/"
@@ -54,31 +55,26 @@ ax.set_xticks(x + width, x)
 plt.tight_layout()
 plt.savefig(IMG_DIR + "agents.png")
 
-## plot book
+## Book FuncAnimation
+fig, ax = plt.subplots(figsize=(8, 4.5), dpi=200, layout='constrained')
 
-h_bids, edges_bids = data_book[0]['bids'].index, data_book[0]['bids'].values
-h_asks, edges_asks = data_book[0]['asks'].index, data_book[0]['asks'].values
-
-fig, ax = plt.subplots(figsize=(15, 7))
-ax.bar(h_bids, edges_bids, label='bids', color='green')
-ax.bar(h_asks, edges_asks, label='asks', color='red')
-
+bids_hist = ax.bar(x=clean_book.loc[0]['bids'].index, height=clean_book.loc[0]['bids'],
+                   color='green', label='Bids')
+asks_hist = ax.bar(x=clean_book.loc[0]['asks'].index, height=clean_book.loc[0]['asks'],
+                   color='red', label='Asks')
+title = ax.text(x=0.5, y=0.8, s="Tick #0", ha='center', transform=ax.transAxes)
+ax.set(ylim=(0, clean_book.max().max() * 1.1),
+       xlabel='Price ($)', ylabel='Quantity')
 ax.legend()
-plt.savefig(IMG_DIR + "book.png")
 
-## plot book - animation (plt.pause)
-fig, ax = plt.subplots(figsize=(7, 15))
+def update(frame_num):
+    title.set_text(f"Tick #{frame_num}")
+    for rect, quantity in zip(bids_hist.patches, clean_book.loc[frame_num]['bids']):
+        rect.set_height(quantity)
+    for rect, quantity in zip(asks_hist.patches, clean_book.loc[frame_num]['asks']):
+        rect.set_height(quantity)
+    return (bids_hist, asks_hist, title)
 
-for t, book in enumerate(data_book):
-    ax.clear()
-
-    h_bids, edges_bids = book['bids'].index, book['bids'].values
-    h_asks, edges_asks = book['asks'].index, book['asks'].values
-
-    ax.bar(h_bids, edges_bids, label='bids', color='green')
-    ax.bar(h_asks, edges_asks, label='asks', color='red')
-
-    ax.set_title(f"frame {t}")
-    ax.legend()
-
-    plt.pause(0.1)
+ani = animation.FuncAnimation(fig=fig, func=update, init_func=lambda:None,
+                              frames=len(clean_book), interval=200)
+ani.save(IMG_DIR + "book.gif")
