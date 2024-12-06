@@ -7,8 +7,9 @@
 #include "order_book.hpp"
 #include "serializable.hpp"
 
+namespace leyval {
 void
-to_json(json& j, const OrderBook& order_book)
+to_json(nlohmann::json& j, const OrderBook& order_book)
 {
   std::map<Money, int> bid_counts;
   std::map<Money, int> ask_counts;
@@ -21,13 +22,15 @@ to_json(json& j, const OrderBook& order_book)
     ++ask_counts[pair.first];
   }
 
-  j = json{ { "bid_counts", bid_counts }, { "ask_counts", ask_counts } };
+  j = nlohmann::json{ { "bid_counts", bid_counts },
+                      { "ask_counts", ask_counts } };
 }
 static_assert(Serializable<OrderBook>);
+} // namespace leyval
 
 auto
-fmt::formatter<OrderBook>::format(const OrderBook& order_book,
-                                  format_context& ctx) const
+fmt::formatter<leyval::OrderBook>::format(const leyval::OrderBook& order_book,
+                                          format_context& ctx) const
   -> format_context::iterator
 {
   return fmt::format_to(ctx.out(),
@@ -38,6 +41,7 @@ fmt::formatter<OrderBook>::format(const OrderBook& order_book,
                         order_book.m_state.best_price_ask);
 }
 
+namespace leyval {
 [[nodiscard]] Money
 OrderBook::current_best_price(OrderDir order_dir) const
 {
@@ -80,8 +84,8 @@ OrderBook::quoted_spread() const
   // Expressed in %.
   // (x-y)/midpoint == 2(x-y)/(x+y)
   const Money ask{ current_best_price(OrderDir::Ask) };
-  const Money bid{current_best_price(OrderDir::Bid)};
-  const int pct {100};
+  const Money bid{ current_best_price(OrderDir::Bid) };
+  const int pct{ 100 };
   return pct * 2 * ((ask - bid) / (ask + bid));
 }
 
@@ -111,4 +115,5 @@ OrderBook::insert(LimitOrder lo)
     default:
       throw OrderDirInvalidValue("OrderBook::insert");
   }
+}
 }

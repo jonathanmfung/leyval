@@ -2,23 +2,27 @@
 #include "my_spdlog.hpp"
 #include "serializable.hpp"
 
+namespace leyval {
 void
-to_json(json& j, const Agent& agent)
+to_json(nlohmann::json& j, const Agent& agent)
 {
-  j = json{ { "id", agent.get_id() },
-            { "capital", agent.m_capital },
-            { "shares", agent.m_shares } };
+  j = nlohmann::json{ { "id", agent.get_id() },
+                      { "capital", agent.m_capital },
+                      { "shares", agent.m_shares }
+  };
+}
+static_assert(Serializable<Agent>);
 }
 
-static_assert(Serializable<Agent>);
-
 auto
-fmt::formatter<Agent>::format(const Agent& agent, format_context& ctx) const
+fmt::formatter<leyval::Agent>::format(const leyval::Agent& agent,
+                                      format_context& ctx) const
   -> format_context::iterator
 {
   return fmt::format_to(ctx.out(), "Agent {}", agent.get_id());
 }
 
+namespace leyval {
 [[nodiscard]] std::vector<OrderReq_t>
 Agent_JFProvider::generate_order(
   [[maybe_unused]] const OrderBook::State& ob_state) const
@@ -62,4 +66,5 @@ Agent::sell(const int volume, const Money total_price)
 {
   m_shares -= volume;
   m_capital += total_price;
+}
 }

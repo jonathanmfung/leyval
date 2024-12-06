@@ -5,9 +5,11 @@
 #include "order.hpp"
 #include "order_book.hpp"
 
+namespace leyval {
 class Agent
 {
 public:
+  // TODO: Add agent_type so python can inspect
   Agent(Money capital)
     : m_id{ new_id() }
     , m_capital{ capital }
@@ -38,13 +40,14 @@ private:
     return ++id;
   }
 
-  friend void to_json(json& j, const Agent& agent);
+  friend void to_json(nlohmann::json& j, const Agent& agent);
 };
+}
 
 template<>
-struct fmt::formatter<Agent> : fmt::formatter<std::string_view>
+struct fmt::formatter<leyval::Agent> : fmt::formatter<std::string_view>
 {
-  auto format(const Agent& agent,
+  auto format(const leyval::Agent& agent,
               format_context& ctx) const -> format_context::iterator;
 };
 
@@ -58,6 +61,7 @@ struct fmt::formatter<Agent> : fmt::formatter<std::string_view>
 // class Agent_Raberto : public Agent{};
 
 //
+namespace leyval {
 class Agent_JFProvider : public Agent
 {
 public:
@@ -69,3 +73,4 @@ public:
     const OrderBook::State& ob_state) const;
 };
 // class Agent_JFTaker : public Agent{};
+}

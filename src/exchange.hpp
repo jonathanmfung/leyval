@@ -7,6 +7,7 @@
 #include "serializable.hpp"
 #include <memory>
 
+namespace leyval {
 class Exchange
 {
 public:
@@ -35,13 +36,14 @@ private:
 
   void execute(TransactionRequest trans);
 
-  friend void to_json(json& j, const Exchange& exch);
+  friend void to_json(nlohmann::json& j, const Exchange& exch);
   friend struct fmt::formatter<Exchange>;
 };
+}
 
 template<>
-struct fmt::formatter<Exchange> : fmt::formatter<std::string_view>
+struct fmt::formatter<leyval::Exchange> : fmt::formatter<std::string_view>
 {
-  auto format(const Exchange& exchange,
+  auto format(const leyval::Exchange& exchange,
               format_context& ctx) const -> format_context::iterator;
 };

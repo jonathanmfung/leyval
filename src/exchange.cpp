@@ -2,31 +2,34 @@
 #include <cassert>
 #include <random>
 #include <ranges>
-#include <set>
-#include <stdexcept>
+#include <vector>
 
 #include "my_spdlog.hpp"
 #include "serializable.hpp"
 
+#include "agent.hpp"
 #include "exchange.hpp"
 #include "order.hpp"
 #include "overloaded.hpp"
 
+namespace leyval {
 void
-to_json(json& j, const Exchange& exch)
+to_json(nlohmann::json& j, const Exchange& exch)
 {
-  j =
-    json{ { "order_book", exch.m_order_book },
-          { "agents", exch.m_agents },
-          // NOTE: using this with to_json(..., MatchingSystem) does not compile
-          { "matching_system", exch.m_matching_sys.get_type_string() } };
+  j = nlohmann::json{
+    { "order_book", exch.m_order_book },
+    { "agents", exch.m_agents },
+    // NOTE: using this with to_json(..., MatchingSystem) does not compile
+    { "matching_system", exch.m_matching_sys.get_type_string() }
+  };
 }
-
 static_assert(Serializable<Exchange>);
+} // namespace leyval
 
 auto
-fmt::formatter<Exchange>::format(const Exchange& exchange, format_context& ctx)
-  const -> format_context::iterator
+fmt::formatter<leyval::Exchange>::format(const leyval::Exchange& exchange,
+                                         format_context& ctx) const
+  -> format_context::iterator
 {
   return fmt::format_to(ctx.out(),
                         "Exchange({}, {})",
@@ -34,6 +37,7 @@ fmt::formatter<Exchange>::format(const Exchange& exchange, format_context& ctx)
                         exchange.m_order_book);
 }
 
+namespace leyval {
 void
 Exchange::saturate()
 {
@@ -137,4 +141,5 @@ Exchange::execute(TransactionRequest trans)
 
   m_agents[trans.asker_id]->sell(trans.volume, trans.price);
   m_agents[trans.bidder_id]->buy(trans.volume, trans.price);
+}
 }

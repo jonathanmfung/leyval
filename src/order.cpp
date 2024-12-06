@@ -2,6 +2,7 @@
 #include "my_spdlog.hpp"
 #include "serializable.hpp"
 
+namespace leyval {
 NLOHMANN_JSON_SERIALIZE_ENUM(OrderDir,
                              {
                                { OrderDir::Bid, "Bid" },
@@ -9,15 +10,17 @@ NLOHMANN_JSON_SERIALIZE_ENUM(OrderDir,
                              })
 
 static_assert(Serializable<OrderDir>);
-
+}
 auto
-fmt::formatter<OrderDir>::format(const OrderDir& od, format_context& ctx) const
+fmt::formatter<leyval::OrderDir>::format(const leyval::OrderDir& od,
+                                         format_context& ctx) const
   -> format_context::iterator
 {
   return fmt::format_to(
-    ctx.out(), "OrderDir {}", od == OrderDir::Bid ? "Bid" : "Ask");
+    ctx.out(), "OrderDir {}", od == leyval::OrderDir::Bid ? "Bid" : "Ask");
 }
 
+namespace leyval {
 OrderDir
 operator!(OrderDir order_dir)
 {
@@ -46,11 +49,12 @@ operator==(const MarketOrderReq& mor1, const MarketOrderReq& mor2)
 }
 
 static_assert(IsOrderReq<MarketOrderReq>);
+}
 
 auto
-fmt::formatter<MarketOrderReq>::format(const MarketOrderReq& mor,
-                                       format_context& ctx) const
-  -> format_context::iterator
+fmt::formatter<leyval::MarketOrderReq>::format(
+  const leyval::MarketOrderReq& mor,
+  format_context& ctx) const -> format_context::iterator
 {
   return fmt::format_to(ctx.out(),
                         "(MOR: {{a_id: {}, vol: {}, {}, {}}})",
@@ -58,11 +62,11 @@ fmt::formatter<MarketOrderReq>::format(const MarketOrderReq& mor,
                         mor.volume,
                         mor.order_dir,
                         std::chrono::duration_cast<std::chrono::microseconds>(
-                          mor.timestamp - INIT_TS));
+                          mor.timestamp - leyval::INIT_TS));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
+namespace leyval {
 std::strong_ordering
 operator<=>(const LimitOrderVal& lov1, const LimitOrderVal& lov2)
 {
@@ -84,10 +88,11 @@ operator==(const LimitOrderReq& lor1, const LimitOrderReq& lor2)
 }
 
 static_assert(IsOrderReq<LimitOrderReq>);
+}
 
 auto
-fmt::formatter<LimitOrderReq>::format(const LimitOrderReq& lor,
-                                      format_context& ctx) const
+fmt::formatter<leyval::LimitOrderReq>::format(const leyval::LimitOrderReq& lor,
+                                              format_context& ctx) const
   -> format_context::iterator
 {
   return fmt::format_to(ctx.out(),
@@ -97,5 +102,5 @@ fmt::formatter<LimitOrderReq>::format(const LimitOrderReq& lor,
                         lor.volume,
                         lor.order_dir,
                         std::chrono::duration_cast<std::chrono::microseconds>(
-                          lor.timestamp - INIT_TS));
+                          lor.timestamp - leyval::INIT_TS));
 }

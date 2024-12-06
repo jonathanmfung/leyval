@@ -2,11 +2,11 @@
 
 #include <chrono>
 
-#include <fmt/format.h>
 #include <fmt/chrono.h>
+#include <fmt/format.h>
 #include <fmt/std.h>
 
-
+namespace leyval {
 // NOTE: can't use std::strong_ordering with floats
 using Money = int;
 const auto now = std::chrono::steady_clock::now;
@@ -32,15 +32,17 @@ public:
   {
   }
 };
+}
 
 template<>
-struct fmt::formatter<OrderDir> : fmt::formatter<std::string_view>
+struct fmt::formatter<leyval::OrderDir> : fmt::formatter<std::string_view>
 {
-  auto format(const OrderDir& od, format_context& ctx) const -> format_context::iterator;
+  auto format(const leyval::OrderDir& od,
+              format_context& ctx) const -> format_context::iterator;
 };
 
 ///////////////////
-
+namespace leyval {
 template<typename T>
 concept IsOrderReq =
   std::three_way_comparable<T, std::strong_ordering> && requires(T a, T b) {
@@ -65,15 +67,16 @@ operator<=>(const MarketOrderReq& mor1, const MarketOrderReq& mor2);
 
 bool
 operator==(const MarketOrderReq& mor1, const MarketOrderReq& mor2);
-
+}
 template<>
-struct fmt::formatter<MarketOrderReq> : fmt::formatter<std::string_view>
+struct fmt::formatter<leyval::MarketOrderReq> : fmt::formatter<std::string_view>
 {
-  auto format(const MarketOrderReq& mor, format_context& ctx) const -> format_context::iterator;
+  auto format(const leyval::MarketOrderReq& mor,
+              format_context& ctx) const -> format_context::iterator;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
+namespace leyval {
 // Helper method for second in Ask/Bid Container
 struct LimitOrderVal
 {
@@ -107,17 +110,20 @@ operator<=>(const LimitOrderReq& lor1, const LimitOrderReq& lor2);
 
 bool
 operator==(const LimitOrderReq& lor1, const LimitOrderReq& lor2);
+}
 
 template<>
-struct fmt::formatter<LimitOrderReq> : fmt::formatter<std::string_view>
+struct fmt::formatter<leyval::LimitOrderReq> : fmt::formatter<std::string_view>
 {
-  auto format(const LimitOrderReq& lor, format_context& ctx) const -> format_context::iterator;
+  auto format(const leyval::LimitOrderReq& lor,
+              format_context& ctx) const -> format_context::iterator;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 // TODO: Add CancelOrder (remove specific LimitOrder in OrderBook)
 // Just needs a way to uniquely identify LO
+namespace leyval {
 struct CancelOrderReq
 {
   int volume{};
@@ -130,5 +136,5 @@ struct CancelOrderReq
 ////////////////////////////////////////////////////////////////////////////////
 
 using OrderReq_t = OrderReqVar<MarketOrderReq, LimitOrderReq>;
-
+}
 // NOTE: OrderReq fmt provided by <fmt/std.h> (default variant)

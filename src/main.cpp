@@ -1,7 +1,7 @@
+#include <filesystem>
 #include <memory>
 #include <random>
 #include <ranges>
-#include <filesystem>
 
 #include "my_spdlog.hpp"
 #include "serializable.hpp"
@@ -12,12 +12,12 @@
 #include "matching_system.hpp"
 #include "order_book.hpp"
 
-// TODO: add global project namespace
 // TODO: add Constants namespace
 
 int
 main()
 {
+  using namespace leyval;
   // Same format as default, but with YYMMDD instead of YYYY-MM-DD, and source
   // function
   spdlog::set_pattern("[%C%m%d %T.%e] [%^%-8l%$] [%s:%# (%!)] %v");
@@ -34,11 +34,13 @@ main()
     agents.emplace_back(std::make_unique<Agent_JFProvider>(capital(gen)));
   }
 
-  Exchange exch{ OrderBook{}, std::move(agents), MatchingSystem{ MatchingSystem::fifo } };
+  Exchange exch{ OrderBook{},
+                 std::move(agents),
+                 MatchingSystem{ MatchingSystem::fifo } };
 
   exch.saturate();
 
-  json exchange_states;
+  nlohmann::json exchange_states;
   exchange_states.push_back(exch);
 
   for ([[maybe_unused]] const int i : std::views::iota(1, 6)) {
@@ -48,7 +50,7 @@ main()
     SPDLOG_INFO("{}", exch);
   }
 
-  const std::filesystem::path DATA_DIR {"data"};
+  const std::filesystem::path DATA_DIR{ "data" };
   std::filesystem::create_directory(DATA_DIR);
   std::ofstream out_file(DATA_DIR / "pretty.json");
   out_file << std::setw(2) << exchange_states << std::endl;

@@ -6,6 +6,7 @@
 #include "order_book.hpp"
 #include "serializable.hpp"
 
+namespace leyval {
 struct TransactionRequest
 {
   int bidder_id;
@@ -35,19 +36,21 @@ struct TransactionRequest
     }
   }
 };
-
+}
 // TransactionRequest(initiator_agent, provider_agent, volume, price, order_dir)
 
 template<>
-struct fmt::formatter<TransactionRequest> : fmt::formatter<std::string_view>
+struct fmt::formatter<leyval::TransactionRequest>
+  : fmt::formatter<std::string_view>
 {
-  auto format(const TransactionRequest& treq, format_context& ctx) const -> format_context::iterator;
+  auto format(const leyval::TransactionRequest& treq,
+              format_context& ctx) const -> format_context::iterator;
 };
-
 
 //////////////////////////////////////////////////////////
 
 // TODO: Think about splitting MatchingSystem to concept or abstract base class
+namespace leyval {
 class MatchingSystem
 {
 public:
@@ -84,9 +87,11 @@ public:
 private:
   Type m_type;
 };
+} // namespace leyval
 
 template<>
-struct fmt::formatter<MatchingSystem> : fmt::formatter<std::string_view>
+struct fmt::formatter<leyval::MatchingSystem> : fmt::formatter<std::string_view>
 {
-  auto format(const MatchingSystem& match_sys, format_context& ctx) const -> format_context::iterator;
+  auto format(const leyval::MatchingSystem& match_sys,
+              format_context& ctx) const -> format_context::iterator;
 };

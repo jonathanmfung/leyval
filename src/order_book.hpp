@@ -2,9 +2,10 @@
 
 #include <map>
 
-#include "serializable.hpp"
 #include "order.hpp"
+#include "serializable.hpp"
 
+namespace leyval {
 class OrderBook
 {
 public:
@@ -92,10 +93,13 @@ private:
   [[nodiscard]] int num_orders(OrderDir order_dir) const;
 
   friend struct fmt::formatter<OrderBook>;
-  friend void to_json(json& j, const OrderBook& order_book);
+  friend void to_json(nlohmann::json& j, const OrderBook& order_book);
 };
+}
+
 template<>
-struct fmt::formatter<OrderBook> : fmt::formatter<std::string_view>
+struct fmt::formatter<leyval::OrderBook> : fmt::formatter<std::string_view>
 {
-  auto format(const OrderBook& order_book, format_context& ctx) const -> format_context::iterator;
+  auto format(const leyval::OrderBook& order_book,
+              format_context& ctx) const -> format_context::iterator;
 };

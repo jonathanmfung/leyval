@@ -7,9 +7,9 @@
 #include "matching_system.hpp"
 
 auto
-fmt::formatter<TransactionRequest>::format(const TransactionRequest& treq,
-                                           format_context& ctx) const
-  -> format_context::iterator
+fmt::formatter<leyval::TransactionRequest>::format(
+  const leyval::TransactionRequest& treq,
+  format_context& ctx) const -> format_context::iterator
 {
   return fmt::format_to(ctx.out(),
                         "(TREQ: {{bid_id: {}, ask_id: {}, prc: {}, vol: {}}})",
@@ -20,14 +20,15 @@ fmt::formatter<TransactionRequest>::format(const TransactionRequest& treq,
 }
 
 auto
-fmt::formatter<MatchingSystem>::format(const MatchingSystem& match_sys,
-                                       format_context& ctx) const
-  -> format_context::iterator
+fmt::formatter<leyval::MatchingSystem>::format(
+  const leyval::MatchingSystem& match_sys,
+  format_context& ctx) const -> format_context::iterator
 {
   return fmt::format_to(
     ctx.out(), "MatchingSystem({})", match_sys.get_type_string());
 }
 
+namespace leyval {
 std::vector<TransactionRequest>
 MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
 {
@@ -49,8 +50,8 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
       // Each share traded needs to recalculate the best price
       for ([[maybe_unused]] const int i : std::views::iota(0, mor.volume)) {
         SPDLOG_TRACE("MS::(FIFO) Loop {}", i);
-	// TODO: Check that order direction is correct
-	// e.g. a Bid MarketOrder actually takes from the Asks LimitOrders
+        // TODO: Check that order direction is correct
+        // e.g. a Bid MarketOrder actually takes from the Asks LimitOrders
         auto best_orders{ order_book.orders_at_best_price(mor.order_dir) };
         Money best_price =
           best_orders.first->first; // best_orders.first_iterator->key
@@ -115,3 +116,4 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
   }
   return trans_reqs;
 };
+}
