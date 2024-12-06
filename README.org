@@ -4,22 +4,26 @@
 - Focus on procedural fairness of various matching systems
 - Written in C++20
 
-** Dev
+[[./scripts/img/book.gif]]
+
+** Usage
 This helps clangd (in emacs/eglot) find system and lib includes.
 #+begin_src bash :noeval
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 #+end_src
-** Usage
+
+Build with cmake:
 #+begin_src bash :noeval
 cmake --preset release
 cmake --build --preset release
 build/release/leyval
 #+end_src
 
-* TODOs
-- [ ] Visualization (python matplotlib)
-- [X] Logger (spdlog)
-- [ ] Unit Tests (googltest)
+Or build with nix:
+#+begin_src bash :noeval
+nix-build default.nix
+./result/bin/leyval
+#+end_src
 
 * Sources
 ** An Empirical Analysis of the Limit Order Book and the Order Flow in the Paris Bourse
