@@ -9,11 +9,11 @@ namespace leyval {
 class Agent
 {
 public:
-  // TODO: Add agent_type so python can inspect
-  Agent(Money capital)
+  Agent(Money capital, std::string type)
     : m_id{ new_id() }
     , m_capital{ capital }
     , m_shares{ 0 }
+    , m_type{ type }
   {
   }
 
@@ -33,6 +33,7 @@ private:
   int m_id{};
   Money m_capital{};
   int m_shares{};
+  std::string m_type{};
 
   static int new_id()
   {
@@ -66,7 +67,7 @@ class Agent_JFProvider : public Agent
 {
 public:
   Agent_JFProvider(Money capital)
-    : Agent{ capital }
+    : Agent{ capital, "JFProvider" }
   {
   }
   [[nodiscard]] virtual std::vector<OrderReq_t> generate_order(

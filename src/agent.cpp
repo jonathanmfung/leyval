@@ -8,8 +8,8 @@ to_json(nlohmann::json& j, const Agent& agent)
 {
   j = nlohmann::json{ { "id", agent.get_id() },
                       { "capital", agent.m_capital },
-                      { "shares", agent.m_shares }
-  };
+                      { "shares", agent.m_shares },
+                      { "type", agent.m_type } };
 }
 static_assert(Serializable<Agent>);
 }
