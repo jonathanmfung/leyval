@@ -8,11 +8,11 @@
 #include <spdlog/common.h>
 
 #include "agent.hpp"
+#include "constants.hpp"
 #include "exchange.hpp"
 #include "matching_system.hpp"
 #include "order_book.hpp"
 
-// TODO: add Constants namespace
 // TODO: add Unit Tests (googletest)
 
 int
@@ -30,8 +30,8 @@ main()
 
   std::vector<Exchange::Agent_t> agents{};
 
-  const int n_agents{ 10 };
-  for ([[maybe_unused]] const int _ : std::views::iota(0, n_agents)) {
+  for ([[maybe_unused]] const int _ :
+       std::views::iota(0, constants::n_agents)) {
     agents.emplace_back(std::make_unique<Agent_JFProvider>(capital(gen)));
   }
 
@@ -44,16 +44,15 @@ main()
   nlohmann::json exchange_states;
   exchange_states.push_back(exch);
 
-  for ([[maybe_unused]] const int i : std::views::iota(1, 6)) {
-    SPDLOG_INFO("Run #{} ***********************", i);
+  for ([[maybe_unused]] const int i : std::views::iota(0, constants::n_runs)) {
+    SPDLOG_INFO("Run #{} ***********************", i + 1);
     exch.run();
     exchange_states.push_back(exch);
     SPDLOG_INFO("{}", exch);
   }
 
-  const std::filesystem::path DATA_DIR{ "data" };
-  std::filesystem::create_directory(DATA_DIR);
-  std::ofstream out_file(DATA_DIR / "pretty.json");
+  std::filesystem::create_directory(constants::data_dir);
+  std::ofstream out_file(constants::data_dir / "pretty.json");
   out_file << std::setw(2) << exchange_states << std::endl;
 
   return 0;

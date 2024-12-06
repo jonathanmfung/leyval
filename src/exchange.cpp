@@ -24,7 +24,7 @@ to_json(nlohmann::json& j, const Exchange& exch)
   };
 }
 static_assert(Serializable<Exchange>);
-} // namespace leyval
+}
 
 auto
 fmt::formatter<leyval::Exchange>::format(const leyval::Exchange& exchange,
