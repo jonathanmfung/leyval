@@ -26,7 +26,7 @@ main()
 
   std::random_device rd;  // a seed source for the random number engine
   std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
-  std::uniform_int_distribution<> capital(800, 1'200);
+  std::uniform_int_distribution<> capital(80'000, 120'000);
 
   std::vector<Exchange::Agent_t> agents{};
 

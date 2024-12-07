@@ -8,6 +8,7 @@
 #include "serializable.hpp"
 
 #include "agent.hpp"
+#include "constants.hpp"
 #include "exchange.hpp"
 #include "order.hpp"
 #include "overloaded.hpp"
@@ -45,8 +46,6 @@ Exchange::saturate()
 
   // NOTE: Assert that highest bid < lowest ask
 
-  const int n_contracts_per_side{ 100 };
-
   std::random_device rd;  // a seed source for the random number engine
   std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
 
@@ -60,8 +59,11 @@ Exchange::saturate()
   std::uniform_int_distribution<> agent_id(1, (*max_agent)->get_id());
 
   // Money price;
-  std::uniform_int_distribution<> bid_prices(90, 98);
-  std::uniform_int_distribution<> ask_prices(102, 110);
+  using namespace constants::saturate;
+  std::uniform_int_distribution<> bid_prices(price_center - price_far_offset,
+                                             price_center - price_close_offset);
+  std::uniform_int_distribution<> ask_prices(price_center + price_close_offset,
+                                             price_center + price_far_offset);
 
   // int volume{};
   std::poisson_distribution<> volume(4);
