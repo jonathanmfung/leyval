@@ -32,9 +32,10 @@ main()
   std::uniform_int_distribution<> capital(80'000, 120'000);
   std::vector<Exchange<PRNG>::Agent_t> agents{};
 
-  for ([[maybe_unused]] const int _ :
-       std::views::iota(0, constants::n_agents)) {
-    agents.emplace_back(std::make_unique<Agent_JFProvider>(capital(gen)));
+  // TODO: Split agents by Provider/Taker
+  for (const int _ : std::views::iota(0, constants::n_agents)) {
+    agents.emplace_back(
+      std::make_unique<Agent_JFProvider<PRNG>>(capital(rng), rng));
   }
 
   Exchange exch{ OrderBook{},
