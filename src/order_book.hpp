@@ -21,6 +21,7 @@ public:
     Money best_price_ask;
     Money mid_price;
     Money quoted_spread;
+    Money abs_spread;
     int num_orders_bid;
     int num_orders_ask;
 
@@ -29,6 +30,7 @@ public:
       , best_price_ask{ ob.current_best_price(OrderDir::Ask) }
       , mid_price{ ob.mid_price() }
       , quoted_spread{ ob.quoted_spread() }
+      , abs_spread{ ob.abs_spread() }
       , num_orders_bid{ ob.num_orders(OrderDir::Bid) }
       , num_orders_ask{ ob.num_orders(OrderDir::Ask) }
     {
@@ -90,6 +92,7 @@ private:
   [[nodiscard]] Money current_best_price(OrderDir order_dir) const;
   [[nodiscard]] Money mid_price() const;
   [[nodiscard]] Money quoted_spread() const;
+  [[nodiscard]] Money abs_spread() const;
   [[nodiscard]] int num_orders(OrderDir order_dir) const;
 
   friend struct fmt::formatter<OrderBook>;
