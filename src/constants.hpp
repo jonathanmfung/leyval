@@ -4,7 +4,8 @@
 
 namespace leyval::constants {
 const std::filesystem::path data_dir{ "data" };
-constexpr int n_agents{ 10 };
+constexpr int n_providers{ 8 };
+constexpr int n_takers{ 15 };
 constexpr int n_runs{ 30 };
 
 namespace saturate {

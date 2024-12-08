@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <filesystem>
 #include <memory>
 #include <random>
@@ -31,11 +32,17 @@ main()
   std::uniform_int_distribution<> capital(80'000, 120'000);
   std::vector<Exchange<PRNG>::Agent_t> agents{};
 
-  // TODO: Split agents by Provider/Taker
-  for (const int _ : std::views::iota(0, constants::n_agents)) {
+  for (const int _ : std::views::iota(0, constants::n_providers)) {
     agents.emplace_back(
       std::make_unique<Agent_JFProvider<PRNG>>(capital(rng), rng));
   }
+
+  for (const int _ : std::views::iota(0, constants::n_takers)) {
+    agents.emplace_back(
+      std::make_unique<Agent_JFTaker<PRNG>>(capital(rng), rng));
+  }
+  std::ranges::shuffle(
+    agents, rng); // NOTE: may want to not shuffle when grouping in python
 
   Exchange exch{
     OrderBook{}, std::move(agents), MatchingSystem{ MatchingSystem::fifo }, rng
