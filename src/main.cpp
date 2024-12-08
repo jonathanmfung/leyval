@@ -5,7 +5,6 @@
 
 #include "my_spdlog.hpp"
 #include "serializable.hpp"
-#include <spdlog/common.h>
 
 #include "agent.hpp"
 #include "constants.hpp"
@@ -38,9 +37,9 @@ main()
       std::make_unique<Agent_JFProvider<PRNG>>(capital(rng), rng));
   }
 
-  Exchange exch{ OrderBook{},
-                 std::move(agents),
-                 MatchingSystem{ MatchingSystem::fifo } };
+  Exchange exch{
+    OrderBook{}, std::move(agents), MatchingSystem{ MatchingSystem::fifo }, rng
+  };
 
   exch.saturate();
 
