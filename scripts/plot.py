@@ -8,16 +8,23 @@ import matplotlib.animation as animation
 DATA_FILE = "../data/pretty.json"
 IMG_DIR = "img/"
 
-with open(DATA_FILE, 'r') as f:
-    raw_json = json.load(f)
+FIGSIZE = (8, 4.5)
+DPI = 200
 
 def read_agents(agents):
     return pd.json_normalize(agents)
 
 def read_book(book):
-    bids = pd.Series([x[1] for x in book['bid_counts']], index = [x[0] for x in book['bid_counts']], name='bids')
-    asks = pd.Series([x[1] for x in book['ask_counts']], index = [x[0] for x in book['ask_counts']], name='asks')
+    bids = pd.Series([x[1] for x in book['bid_counts']],
+                     index = [x[0] for x in book['bid_counts']],
+                     name='bids')
+    asks = pd.Series([x[1] for x in book['ask_counts']],
+                     index = [x[0] for x in book['ask_counts']],
+                     name='asks')
     return pd.concat([bids, asks], keys=['bids', 'asks'])
+
+with open(DATA_FILE, 'r') as f:
+    raw_json = json.load(f)
 
 data_agents = []
 data_book = []
@@ -33,6 +40,27 @@ clean_book = pd.concat(data_book, axis=1).T.fillna(0).astype("Int64")
 clean_book.index = clean_book.index.set_names('time')
 
 ## plot agents
+fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI, layout='constrained')
+title = ax.text(x=0.5, y=0.8, s="Agents: Tick #0", ha='center', transform=ax.transAxes, animated=True)
+
+# TODO: Plot seperate capital and shares
+# Option 1: up-down bar grophs, top/bottom
+# Option 2: combined
+# #shares | capital
+#    5    |-----
+#   12    |--
+#    7    |----
+#    5    |-
+# Option 3: 2 plots of histograms/density curves for captial and shares
+#   group by agent_type (so ~3-6 groups)
+#   no connection from capital and share, just looking at behavior
+# Option 4: Grid of cells, to help refer to agents (a1,j10)
+#   both capital/share: text + heat map based on stdev?
+#   can be modular, easy grouping of agent_type
+
+# NOTE: Also want to group by type of trader (market taker, market provider, ...)
+# NOTE: May want to scale #shares by current best sell price?
+#
 agents = data_agents[2]
 x = agents['id']
 
@@ -56,7 +84,7 @@ plt.tight_layout()
 plt.savefig(IMG_DIR + "agents.png")
 
 ## Book FuncAnimation
-fig, ax = plt.subplots(figsize=(8, 4.5), dpi=200, layout='constrained')
+fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI, layout='constrained')
 
 bids_hist = ax.bar(x=clean_book.loc[0]['bids'].index, height=clean_book.loc[0]['bids'],
                    color='green', label='Bids', animated=True)
