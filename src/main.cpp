@@ -24,11 +24,13 @@ main()
   spdlog::set_pattern("[%C%m%d %T.%e] [%^%-8l%$] [%s:%# (%!)] %v");
   spdlog::set_level(spdlog::level::trace); // Set global log level
 
-  std::random_device rd;  // a seed source for the random number engine
-  std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
-  std::uniform_int_distribution<> capital(80'000, 120'000);
+  using PRNG = std::mt19937;
+  std::random_device rd;
+  std::seed_seq seed{ rd(), rd(), rd(), rd(), rd(), rd() };
+  PRNG rng(seed);
 
-  std::vector<Exchange::Agent_t> agents{};
+  std::uniform_int_distribution<> capital(80'000, 120'000);
+  std::vector<Exchange<PRNG>::Agent_t> agents{};
 
   for ([[maybe_unused]] const int _ :
        std::views::iota(0, constants::n_agents)) {
