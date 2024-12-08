@@ -136,28 +136,30 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
 {
   SPDLOG_TRACE("JFProvider::generate_order:: get_id: {}", this->get_id());
 
-  // TODO: Add prob of nooping
+  std::bernoulli_distribution place_order_prob(0.75);
   std::bernoulli_distribution bid_prob(0.5);
-  const std::array price_offset{ -1, 0, 1, 2, 3 };
-  const std::array ws{ 1, 5, 5, 4, 3 };
+  const std::array price_offset{ -2, -1, 0, 1, 2, 3 };
+  const std::array ws{ 2, 2, 5, 5, 4, 3 };
   static_assert(price_offset.size() == ws.size());
   std::discrete_distribution<> weights(ws.begin(), ws.end());
-  std::poisson_distribution volume(3);
+  std::poisson_distribution volume(15);
 
   std::vector<OrderReq_t> reqs{};
 
-  if (bid_prob(this->m_prng)) {
-    reqs.emplace_back(LimitOrderReq{
-      .volume = volume(this->m_prng),
-      .agent_id = this->get_id(),
-      .price = ob_state.best_price_bid - price_offset[weights(this->m_prng)],
-      .order_dir = OrderDir::Bid });
-  } else {
-    reqs.emplace_back(LimitOrderReq{
-      .volume = volume(this->m_prng),
-      .agent_id = this->get_id(),
-      .price = ob_state.best_price_ask + price_offset[weights(this->m_prng)],
-      .order_dir = OrderDir::Ask });
+  if (place_order_prob(this->m_prng)) {
+    if (bid_prob(this->m_prng)) {
+      reqs.emplace_back(LimitOrderReq{
+        .volume = volume(this->m_prng),
+        .agent_id = this->get_id(),
+        .price = ob_state.best_price_bid - price_offset[weights(this->m_prng)],
+        .order_dir = OrderDir::Bid });
+    } else {
+      reqs.emplace_back(LimitOrderReq{
+        .volume = volume(this->m_prng),
+        .agent_id = this->get_id(),
+        .price = ob_state.best_price_ask + price_offset[weights(this->m_prng)],
+        .order_dir = OrderDir::Ask });
+    }
   }
 
   return reqs;
@@ -165,26 +167,27 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
 
 template<class PRNG>
 [[nodiscard]] std::vector<OrderReq_t>
-Agent_JFTaker<PRNG>::generate_order([[maybe_unused]] const OrderBook::State& ob_state) const
+Agent_JFTaker<PRNG>::generate_order(
+  [[maybe_unused]] const OrderBook::State& ob_state) const
 {
   SPDLOG_TRACE("JFTaker::generate_order:: get_id: {}", this->get_id());
 
-  // TODO: Add prob of nooping
+  std::bernoulli_distribution place_order_prob(0.5);
   std::bernoulli_distribution bid_prob(0.5);
   std::poisson_distribution volume(2);
 
   std::vector<OrderReq_t> reqs{};
 
-  if (bid_prob(this->m_prng)) {
-    reqs.emplace_back(MarketOrderReq{
-      .volume = volume(this->m_prng),
-      .agent_id = this->get_id(),
-      .order_dir = OrderDir::Bid });
-  } else {
-    reqs.emplace_back(MarketOrderReq{
-      .volume = volume(this->m_prng),
-      .agent_id = this->get_id(),
-      .order_dir = OrderDir::Ask });
+  if (place_order_prob(this->m_prng)) {
+    if (bid_prob(this->m_prng)) {
+      reqs.emplace_back(MarketOrderReq{ .volume = volume(this->m_prng),
+                                        .agent_id = this->get_id(),
+                                        .order_dir = OrderDir::Bid });
+    } else {
+      reqs.emplace_back(MarketOrderReq{ .volume = volume(this->m_prng),
+                                        .agent_id = this->get_id(),
+                                        .order_dir = OrderDir::Ask });
+    }
   }
 
   return reqs;
