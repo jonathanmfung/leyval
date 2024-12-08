@@ -58,6 +58,22 @@ private:
     static_assert(Serializable<Agent<PRNG>>);
   }
 };
+
+template<class PRNG>
+void
+Agent<PRNG>::buy(const int volume, const Money total_price)
+{
+  m_shares += volume;
+  m_capital -= total_price;
+}
+
+template<class PRNG>
+void
+Agent<PRNG>::sell(const int volume, const Money total_price)
+{
+  m_shares -= volume;
+  m_capital += total_price;
+}
 }
 
 template<class PRNG>
@@ -113,18 +129,7 @@ public:
 
 namespace leyval {
 template<class PRNG>
-void
-Agent<PRNG>::buy(const int volume, const Money total_price)
 {
-  m_shares += volume;
-  m_capital -= total_price;
-}
-template<class PRNG>
-void
-Agent<PRNG>::sell(const int volume, const Money total_price)
-{
-  m_shares -= volume;
-  m_capital += total_price;
 }
 
 template<class PRNG>
