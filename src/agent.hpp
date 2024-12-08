@@ -23,8 +23,8 @@ public:
   virtual ~Agent() = default;
 
   // generate instance of variant: https://stackoverflow.com/a/74303228
-  // NOTE empty vector means agent is choosing to noop
-  // TODO Maybe make this an Optional, not sure how many agents will actually
+  // NOTE: empty vector means agent is choosing to noop
+  // TODO: Maybe make this an Optional, not sure how many agents will actually
   // submit multiple, unless they are cancels
   [[nodiscard]] virtual std::vector<OrderReq_t> generate_order(
     const OrderBook::State& ob_state) const = 0;
@@ -138,9 +138,20 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
 
   std::bernoulli_distribution place_order_prob(0.75);
   std::bernoulli_distribution bid_prob(0.5);
-  const std::array price_offset{ -2, -1, 0, 1, 2, 3 };
-  const std::array ws{ 2, 2, 5, 5, 4, 3 };
-  static_assert(price_offset.size() == ws.size());
+
+  std::vector<int> price_offset;
+  std::vector<int> ws;
+  if (4 < ob_state.abs_spread) {
+    // Weight inwards (negative)
+    price_offset = {-2, -1, 0, 1, 2};
+    ws = { 3, 3, 4, 2, 2};
+  } else {
+    price_offset = {-1, 0, 1, 2, 3};
+    ws = { 1, 3, 5, 4, 3 };
+  }
+
+  assert(price_offset.size() == ws.size());
+
   std::discrete_distribution<> weights(ws.begin(), ws.end());
   std::poisson_distribution volume(15);
 
