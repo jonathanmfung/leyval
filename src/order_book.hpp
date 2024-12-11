@@ -62,6 +62,7 @@ public:
   void insert(LimitOrder lo);
 
   // order_it is iterator to m_bids/asks
+  // NOTE: I think this causes iterator invalidation
   template<typename T>
   T remove_order(T order_it, OrderDir order_dir)
   {
@@ -75,10 +76,40 @@ public:
     }
   }
 
+  auto remove_earliest_order(int agent_id, OrderDir order_dir)
+  {
+    switch (order_dir) {
+      case OrderDir::Bid: {
+        // TODO: This probably incorrectly removes m_bids.begin()
+        //       when the agent_id does not actually have any orders
+        auto smallest{ m_bids.begin() };
+        for (auto iter{ smallest }; iter != m_bids.end(); ++iter) {
+          if ((iter->second.agent_id == agent_id) &&
+              (iter->second.timestamp < smallest->second.timestamp)) {
+            smallest = iter;
+          }
+        }
+        return remove_order(smallest, order_dir);
+      }
+      case OrderDir::Ask: {
+        auto smallest{ m_asks.begin() };
+        for (auto iter{ smallest }; iter != m_asks.end(); ++iter) {
+          if ((iter->second.agent_id == agent_id) &&
+              (iter->second.timestamp < smallest->second.timestamp)) {
+            smallest = iter;
+          }
+        }
+        return remove_order(smallest, order_dir);
+      }
+      default:
+        throw OrderDirInvalidValue("OrderBook::remove_earliest_order");
+    }
+  }
+
 private:
-  // NOTE std::lgreater means largest element is at beginning
-  // This is an attempt to push frequent values to front of iteration. (bid ->
-  // larger)
+  // NOTE std::greater means largest element is at beginning
+  // This is an attempt to push frequent values to front of iteration.
+  // (bid -> larger)
   using BidContainer = std::multimap<Money, LimitOrderVal, std::greater<>>;
   using AskContainer = std::multimap<Money, LimitOrderVal, std::less<>>;
 
