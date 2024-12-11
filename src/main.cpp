@@ -63,6 +63,7 @@ main()
   std::filesystem::create_directory(constants::data_dir);
   std::ofstream out_file(constants::data_dir / "pretty.json");
   out_file << std::setw(2) << exchange_states << std::endl;
+  SPDLOG_INFO("SIMULATION FINISHED");
 
   return 0;
 }
