@@ -33,6 +33,7 @@ class LeyvalPlotter:
                          name='asks')
         return pd.concat([bids, asks], keys=['bids', 'asks'])
 
+    # TODO: Split read_raw and clean_data for agents/book
     def read_raw(self):
         with open(self.data_file, 'r') as f:
             raw_json = json.load(f)
@@ -40,6 +41,7 @@ class LeyvalPlotter:
         for run_tick in raw_json:
             self._agents_raw.append(self._read_agents(run_tick['agents']))
             self._book_raw.append(self._read_book(run_tick['order_book']))
+        print("READ RAW DATA")
 
     def clean_data(self):
         self.agents_clean = pd.concat(self._agents_raw,
@@ -50,10 +52,46 @@ class LeyvalPlotter:
         self.book_clean = pd.concat(self._book_raw, axis=1)\
                             .T.fillna(0).astype("Int64")
         self.book_clean.index = self.book_clean.index.set_names('time')
+        self.book_clean = self.book_clean.sort_index(ascending=[False, True], axis=1)
+        print("DATA CLEANED")
+
+    def plot_book(self):
+        fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI, layout='constrained')
+
+        bids_hist = ax.bar(x=lp.book_clean.loc[0]['bids'].index, height=lp.book_clean.loc[0]['bids'],
+                           color='green', label='Bids', animated=True)
+        asks_hist = ax.bar(x=lp.book_clean.loc[0]['asks'].index, height=lp.book_clean.loc[0]['asks'],
+                           color='red', label='Asks', animated=True)
+        title = ax.text(x=0.5, y=0.8, s="Tick #0", ha='center', transform=ax.transAxes, animated=True)
+
+        # TODO: Add proper title (Simulation Params: n_providers, n_takers)
+        def init():
+            ax.set(ylim=(0, lp.book_clean.max().max() * 1.1),
+                   xlabel='Price ($)', ylabel='Quantity')
+            # TODO: Make y-axis integers
+            ax.legend()
+            return [r for r in bids_hist] + [r for r in asks_hist] + [title]
+
+        def update(frame_num):
+            title.set_text(f"Tick #{frame_num}")
+            for rect, quantity in zip(bids_hist.patches, lp.book_clean.loc[frame_num]['bids']):
+                rect.set_height(quantity)
+            for rect, quantity in zip(asks_hist.patches, lp.book_clean.loc[frame_num]['asks']):
+                rect.set_height(quantity)
+            return [r for r in bids_hist] + [r for r in asks_hist] + [title]
+
+        ani = animation.FuncAnimation(fig=fig, func=update, init_func=init,
+                                      frames=len(lp.book_clean), interval=200, blit=True)
+        # TODO: Switch to ImageMagickWriter or FFMpegWriter for performance
+        #       https://matplotlib.org/stable/api/animation_api.html#writer-classes
+        ani.save(IMG_DIR + "book.gif")
+        print("SAVED PLOT ANIMATION")
+
 
 lp = LeyvalPlotter(DATA_FILE)
 lp.read_raw()
 lp.clean_data()
+lp.plot_book()
 
 ## plot agents
 fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI, layout='constrained')
@@ -100,30 +138,3 @@ plt.tight_layout()
 plt.savefig(IMG_DIR + "agents.png")
 
 ## Book FuncAnimation
-fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI, layout='constrained')
-
-bids_hist = ax.bar(x=lp.book_clean.loc[0]['bids'].index, height=lp.book_clean.loc[0]['bids'],
-                   color='green', label='Bids', animated=True)
-asks_hist = ax.bar(x=lp.book_clean.loc[0]['asks'].index, height=lp.book_clean.loc[0]['asks'],
-                   color='red', label='Asks', animated=True)
-title = ax.text(x=0.5, y=0.8, s="Tick #0", ha='center', transform=ax.transAxes, animated=True)
-
-def init():
-    ax.set(ylim=(0, lp.book_clean.max().max() * 1.1),
-       xlabel='Price ($)', ylabel='Quantity')
-    ax.legend()
-    return [r for r in bids_hist] + [r for r in asks_hist] + [title]
-
-def update(frame_num):
-    title.set_text(f"Tick #{frame_num}")
-    for rect, quantity in zip(bids_hist.patches, lp.book_clean.loc[frame_num]['bids']):
-        rect.set_height(quantity)
-    for rect, quantity in zip(asks_hist.patches, lp.book_clean.loc[frame_num]['asks']):
-        rect.set_height(quantity)
-    return [r for r in bids_hist] + [r for r in asks_hist] + [title]
-
-ani = animation.FuncAnimation(fig=fig, func=update, init_func=init,
-                              frames=len(lp.book_clean), interval=200, blit=True)
-# TODO: Switch to ImageMagickWriter or FFMpegWriter for performance
-#       https://matplotlib.org/stable/api/animation_api.html#writer-classes
-ani.save(IMG_DIR + "book.gif")
