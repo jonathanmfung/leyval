@@ -104,3 +104,21 @@ fmt::formatter<leyval::LimitOrderReq>::format(const leyval::LimitOrderReq& lor,
                         std::chrono::duration_cast<std::chrono::microseconds>(
                           lor.timestamp - leyval::INIT_TS));
 }
+////////////////////////////////////////////////////////////////////////////////
+
+namespace leyval {
+std::strong_ordering
+operator<=>(const CancelOrderReq& cor1, const CancelOrderReq& cor2)
+{
+  return std::tie(cor1.timestamp, cor1.price) <=>
+         std::tie(cor2.timestamp, cor2.price);
+}
+
+bool
+operator==(const CancelOrderReq& cor1, const CancelOrderReq& cor2)
+{
+  return std::tie(cor1.timestamp, cor1.price) ==
+         std::tie(cor2.timestamp, cor2.price);
+}
+static_assert(IsOrderReq<CancelOrderReq>);
+}
