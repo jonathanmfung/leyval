@@ -160,19 +160,23 @@ Exchange<PRNG>::run()
   for (auto& order_request : m_current_order_requests) {
     SPDLOG_TRACE("Loop {}", order_request);
     std::visit(
-      overloaded{ [this](const LimitOrderReq& lor) {
-                   SPDLOG_TRACE("LOR Visit");
-                   m_order_book.insert(lor.to_full());
-                 },
-                  [this](MarketOrderReq& mor) {
-                    SPDLOG_TRACE("MOR Visit");
-                    auto transaction_requests{ m_matching_sys(mor,
-                                                              m_order_book) };
-                    for (auto transaction_request : transaction_requests) {
-                      SPDLOG_TRACE("{}", transaction_request);
-                      execute(transaction_request);
-                    }
-                  } },
+      overloaded{
+        [this](const LimitOrderReq& lor) {
+          SPDLOG_TRACE("LOR Visit");
+          m_order_book.insert(lor.to_full());
+        },
+        [this](MarketOrderReq& mor) {
+          SPDLOG_TRACE("MOR Visit");
+          auto transaction_requests{ m_matching_sys(mor, m_order_book) };
+          for (auto transaction_request : transaction_requests) {
+            SPDLOG_TRACE("{}", transaction_request);
+            execute(transaction_request);
+          }
+        },
+        [this](CancelOrderReq& cor) {
+          SPDLOG_TRACE("COR Visit");
+          m_order_book.remove_earliest_order(cor.agent_id, cor.order_dir);
+        } },
       order_request);
   }
   m_current_order_requests.clear();
