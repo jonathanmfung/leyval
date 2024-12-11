@@ -1,10 +1,11 @@
 #pragma once
 
+#include <random>
+
 #include "serializable.hpp"
 
 #include "order.hpp"
 #include "order_book.hpp"
-#include <random>
 
 namespace leyval {
 template<class PRNG>
@@ -24,8 +25,6 @@ public:
 
   // generate instance of variant: https://stackoverflow.com/a/74303228
   // NOTE: empty vector means agent is choosing to noop
-  // TODO: Maybe make this an Optional, not sure how many agents will actually
-  // submit multiple, unless they are cancels
   [[nodiscard]] virtual std::vector<OrderReq_t> generate_order(
     const OrderBook::State& ob_state) const = 0;
 
@@ -143,10 +142,10 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
   std::vector<int> ws;
   if (4 < ob_state.abs_spread) {
     // Weight inwards (negative)
-    price_offset = {-2, -1, 0, 1, 2};
-    ws = { 3, 3, 4, 2, 2};
+    price_offset = { -2, -1, 0, 1, 2 };
+    ws = { 3, 3, 4, 2, 2 };
   } else {
-    price_offset = {-1, 0, 1, 2, 3};
+    price_offset = { -1, 0, 1, 2, 3 };
     ws = { 1, 3, 5, 4, 3 };
   }
 
@@ -159,17 +158,52 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
 
   if (place_order_prob(this->m_prng)) {
     if (bid_prob(this->m_prng)) {
+      // Cancel earliest LO
+      // TODO: For remove_earliest_order, volume + price + lo_ts are not needed
+      // TODO: Need a better way for agent to decide cancellation order_dir
+      reqs.emplace_back(
+        CancelOrderReq{ .volume = 0,
+                        .agent_id = this->get_id(),
+                        .price = 0,
+                        .order_dir = OrderDir::Bid,
+                        .lo_timestamp = std::chrono::steady_clock::now() });
+
+      // Create new LO
       reqs.emplace_back(LimitOrderReq{
         .volume = volume(this->m_prng),
         .agent_id = this->get_id(),
         .price = ob_state.best_price_bid - price_offset[weights(this->m_prng)],
         .order_dir = OrderDir::Bid });
+      // Sometimes create another LO, to offset reduction from MO
+      if (bid_prob(this->m_prng)) {
+        reqs.emplace_back(
+          LimitOrderReq{ .volume = volume(this->m_prng),
+                         .agent_id = this->get_id(),
+                         .price = ob_state.best_price_bid -
+                                  price_offset[weights(this->m_prng)],
+                         .order_dir = OrderDir::Bid });
+      }
     } else {
+      reqs.emplace_back(
+        CancelOrderReq{ .volume = 0,
+                        .agent_id = this->get_id(),
+                        .price = 0,
+                        .order_dir = OrderDir::Ask,
+                        .lo_timestamp = std::chrono::steady_clock::now() });
       reqs.emplace_back(LimitOrderReq{
         .volume = volume(this->m_prng),
         .agent_id = this->get_id(),
         .price = ob_state.best_price_ask + price_offset[weights(this->m_prng)],
         .order_dir = OrderDir::Ask });
+
+      if (bid_prob(this->m_prng)) {
+        reqs.emplace_back(
+          LimitOrderReq{ .volume = volume(this->m_prng),
+                         .agent_id = this->get_id(),
+                         .price = ob_state.best_price_ask +
+                                  price_offset[weights(this->m_prng)],
+                         .order_dir = OrderDir::Ask });
+      }
     }
   }
 
