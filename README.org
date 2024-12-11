@@ -25,6 +25,43 @@ nix-build default.nix
 ./result/bin/leyval
 #+end_src
 
+** Overview of Different Matching Systems
+An Order Book is a collection of Bid and Ask limit orders:
+|   Bid |          |   Ask |          |
+| Price | Quantity | Price | Quantity |
+|-------+----------+-------+----------|
+|    25 |        8 |    31 |        4 |
+|    27 |        7 |    32 |       55 |
+|    29 |        5 |    34 |        7 |
+
+If an Agent places a Buy Market Order with Q=2, this gets matched with the current best Ask Price P=31. The Order Book after this transaction looks like:
+
+|   Ask |          |
+| Price | Quantity |
+|-------+----------|
+|    31 |      *2* |
+|    32 |       55 |
+|    34 |        7 |
+
+Now, consider multiple Ask Limit Orders from multiple Agents (1, 2, 3) sitting at the current best price level. Agent 1 placed their order before 2, and 2 before 3. The Matching System is responsible for determining how an incoming Market Order is allocated to these Limit Orders.
+
+| Q_1 | 20 |
+| Q_2 | 50 |
+| Q_3 | 30 |
+
+These Limit Orders have a total Q = 100. The incoming Market Order has Q_m=25.
+
+|     | FIFO      | Pro-Rata   | Random     |
+|-----+-----------+------------+------------|
+| Q_1 | 20-20 = 0 | 20-5 = 15  | (0,20,20)  |
+| Q_2 | 50-5 = 45 | 50-13 = 37 | (50,25,50) |
+| Q_3 | 30-0 = 30 | 30-7 = 23  | (30,30,5)  |
+
+Under FIFO (First-in Last-Out), the Market Order gets allocated to the earliest order (Agent 1). This first Limit Order is not enough to fulfill the Market Order, so the remaining Q=5 overflow to the next-earliest order.
+
+Under Pro-Rata, the Market Order gets split up proportional to the quantity weight of each agent. E.g Agent 1's order constitutes w_1 = Q_1/Q = 20/100 = 20% of the total quantity at this price level. Agent 1's allocation is thus Q_m * w_1 = 5. However Pro-Rata can never be pure, as seen in Agent 2 and 3; their allocations are 12.5 and 7.5, respectively. Quantities must always be integer values, so Agent 2 is rounded up due to FIFO priority.
+
+Under Random, the Market Order is allocated similarly to Pro-Rata, but instead w_1 is interpreted as the probability of 1 share of Q_m being allocated to Agent 1. The two extreme results of this is all of Q_1 being fulfilled or none of Q_1 being fulfilled. The remaining (5 or 25) gets split across Q_2 and Q_3.
 * Sources
 ** An Empirical Analysis of the Limit Order Book and the Order Flow in the Paris Bourse
 https://sci-hub.ru/10.1111/j.1540-6261.1995.tb05192.x
@@ -174,7 +211,8 @@ We consider here only technical traders, assuming that fundamentalists contribut
 #+begin_quote
 On the other hand, the individual strategies used by different technical traders differ in their parameterizations of the buy/sell time, amount of risk tolerated, or portfolio composition (15). So when the input signal—the previous price change r_{t−1}—is small, every agent acts independently. When the input signal is large, the agents act more in concert, irrespective of their differences in trading strategies
 #+end_quote
-
+** Fast, High-Quality Pseudo-Random Numbers for Non-Cryptographers in C++
+https://www.youtube.com/watch?v=I5UY3yb0128
 * ~clang-tidy~
 #+begin_src sh :results output :async
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
