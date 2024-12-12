@@ -100,35 +100,31 @@ Exchange<PRNG>::saturate()
                                            }) };
   std::uniform_int_distribution<> agent_id(1, (*max_agent)->get_id());
 
-  // Money price;
   using namespace constants::saturate;
   std::uniform_int_distribution<> bid_prices(price_center - price_far_offset,
                                              price_center - price_close_offset);
   std::uniform_int_distribution<> ask_prices(price_center + price_close_offset,
                                              price_center + price_far_offset);
 
-  // int volume{};
   std::poisson_distribution<> volume(4);
 
   SPDLOG_DEBUG("Exchange::saturate: Gen Bids & Asks");
   // Bids
   for ([[maybe_unused]] const int _ :
        std::views::iota(0, n_contracts_per_side)) {
-    LimitOrderReq lor{ .volume = volume(m_prng),
-                       .agent_id = agent_id(m_prng),
-                       .price = bid_prices(m_prng),
-                       .order_dir = OrderDir::Bid };
-    m_order_book.insert(lor.to_full());
+    m_order_book.insert({ .volume = volume(m_prng),
+                          .agent_id = agent_id(m_prng),
+                          .price = bid_prices(m_prng),
+                          .order_dir = OrderDir::Bid });
   }
 
   // Asks
   for ([[maybe_unused]] const int _ :
        std::views::iota(0, n_contracts_per_side)) {
-    LimitOrderReq lor{ .volume = volume(m_prng),
-                       .agent_id = agent_id(m_prng),
-                       .price = ask_prices(m_prng),
-                       .order_dir = OrderDir::Ask };
-    m_order_book.insert(lor.to_full());
+    m_order_book.insert({ .volume = volume(m_prng),
+                          .agent_id = agent_id(m_prng),
+                          .price = ask_prices(m_prng),
+                          .order_dir = OrderDir::Ask });
   }
 
   SPDLOG_DEBUG("Exchange::saturate: Post {}", m_order_book);
@@ -163,7 +159,7 @@ Exchange<PRNG>::run()
       overloaded{
         [this](const LimitOrderReq& lor) {
           SPDLOG_TRACE("LOR Visit");
-          m_order_book.insert(lor.to_full());
+          m_order_book.insert(lor);
         },
         [this](MarketOrderReq& mor) {
           SPDLOG_TRACE("MOR Visit");

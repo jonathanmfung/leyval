@@ -112,14 +112,14 @@ OrderBook::num_orders(OrderDir order_dir) const
 }
 
 void
-OrderBook::insert(LimitOrder lo)
+OrderBook::insert(LimitOrderReq lor)
 {
-  switch (lo.second.order_dir) {
+  switch (lor.order_dir) {
     case OrderDir::Bid:
-      m_bids.insert(lo);
+      m_bids.insert(lor.to_full());
       break;
     case OrderDir::Ask:
-      m_asks.insert(lo);
+      m_asks.insert(lor.to_full());
       break;
     default:
       throw OrderDirInvalidValue("OrderBook::insert");

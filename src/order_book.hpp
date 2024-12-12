@@ -59,7 +59,7 @@ public:
     }
   }
 
-  void insert(LimitOrder lo);
+  void insert(LimitOrderReq lor);
 
   // order_it is iterator to m_bids/asks
   // NOTE: I think this causes iterator invalidation
