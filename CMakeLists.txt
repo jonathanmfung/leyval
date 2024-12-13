@@ -25,3 +25,9 @@ find_package(nlohmann_json REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 install(TARGETS ${PROJECT_NAME})
+
+##### Tests ########
+find_package(Catch2 3 REQUIRED)
+add_executable(tests test/test.cpp)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+install(TARGETS tests)
