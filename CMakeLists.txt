@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(leyval LANGUAGES CXX)
+set(LIBRARY_NAME ${PROJECT_NAME}lib)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -pedantic-errors")
 set(CMAKE_CXX_STANDARD 20)
@@ -13,28 +14,32 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS)
       ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 endif()
 
-add_executable(${PROJECT_NAME} src/main.cpp
-                               # Sources
-                               src/matching_system.cpp
-                               src/order.cpp
-                               src/order_book.cpp
+set(HEADERS src/agent.hpp
+            src/constants.hpp
+            src/exchange.hpp
+            src/matching_system.hpp
+            src/money.hpp
+            src/order.hpp
+            src/order_book.hpp)
 
-                               # Headers
-                               src/agent.hpp
-                               src/constants.hpp
-                               src/exchange.hpp
-                               src/matching_system.hpp
-                               src/money.hpp
-                               src/order.hpp
-                               src/order_book.hpp
+set(SOURCES src/matching_system.cpp
+            src/money.cpp
+            src/order.cpp
+            src/order_book.cpp)
 
-                               # Utils
-                               src/my_spdlog.hpp
-                               src/overloaded.hpp
-                               src/serializable.hpp)
+set(UTILS src/my_spdlog.hpp
+          src/overloaded.hpp
+          src/serializable.hpp)
+
+add_library(${LIBRARY_NAME} SHARED ${SOURCES} ${HEADERS} ${UTILS})
+install(TARGETS ${LIBRARY_NAME} )
+
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRARY_NAME})
 
 ##### 3rd Party Libs ########
 find_package(spdlog REQUIRED)
+target_link_libraries(${LIBRARY_NAME} PRIVATE spdlog::spdlog)
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 
 find_package(nlohmann_json REQUIRED)
@@ -50,5 +55,7 @@ add_executable(tests test/test_agent.cpp
                      test/test_money.cpp
                      test/test_order.cpp
                      test/test_order_book.cpp)
-target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+
+target_link_libraries(tests PRIVATE ${LIBRARY_NAME}
+                            PRIVATE Catch2::Catch2WithMain)
 install(TARGETS tests)
