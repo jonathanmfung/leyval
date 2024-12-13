@@ -13,9 +13,25 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS)
       ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 endif()
 
-file(GLOB SOURCES src/*.cpp)
-file(GLOB HEADERS src/*.hpp)
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+add_executable(${PROJECT_NAME} src/main.cpp
+                               # Sources
+                               src/matching_system.cpp
+                               src/order.cpp
+                               src/order_book.cpp
+
+                               # Headers
+                               src/agent.hpp
+                               src/constants.hpp
+                               src/exchange.hpp
+                               src/matching_system.hpp
+                               src/money.hpp
+                               src/order.hpp
+                               src/order_book.hpp
+
+                               # Utils
+                               src/my_spdlog.hpp
+                               src/overloaded.hpp
+                               src/serializable.hpp)
 
 ##### 3rd Party Libs ########
 find_package(spdlog REQUIRED)
@@ -28,6 +44,11 @@ install(TARGETS ${PROJECT_NAME})
 
 ##### Tests ########
 find_package(Catch2 3 REQUIRED)
-add_executable(tests test/test.cpp)
+add_executable(tests test/test_agent.cpp
+                     test/test_exchange.cpp
+                     test/test_matching_system.cpp
+                     test/test_money.cpp
+                     test/test_order.cpp
+                     test/test_order_book.cpp)
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
 install(TARGETS tests)
