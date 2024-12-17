@@ -11,6 +11,22 @@ SCENARIO("Fixed supports arithmetic", "[fixed_point]")
   constexpr int c{ -3 };
   constexpr int d{ -4 };
 
+  WHEN("equality, it acts like an integer")
+  {
+    REQUIRE(Fixed<a>{ 1 } == Fixed<a>{ 1 });
+    REQUIRE(Fixed<c>{ -1 } == Fixed<c>{ -1 });
+  }
+
+  WHEN("comparing, it acts like an integer")
+  {
+    REQUIRE(Fixed<a>{ 2 } > Fixed<a>{ 1 });
+    REQUIRE(Fixed<a>{ 1 } < Fixed<a>{ 2 });
+    REQUIRE(Fixed<a>{ 1 } >= Fixed<a>{ 1 });
+    REQUIRE(Fixed<a>{ 2 } >= Fixed<a>{ 1 });
+    REQUIRE(Fixed<a>{ 1 } <= Fixed<a>{ 1 });
+    REQUIRE(Fixed<a>{ 1 } <= Fixed<a>{ 2 });
+  }
+
   WHEN("adding, it acts like an integer")
   {
     REQUIRE(Fixed<a>{ 1 } + Fixed<a>{ 2 } == Fixed<a>{ 3 });
@@ -23,6 +39,7 @@ SCENARIO("Fixed supports arithmetic", "[fixed_point]")
     REQUIRE(Fixed<a>{ 30 } - Fixed<a>{ -20 } == Fixed<a>{ 50 });
     REQUIRE(Fixed<a>{ -30 } - Fixed<a>{ 20 } == Fixed<a>{ -50 });
   }
+  // TODO: add +=/-=
   WHEN("multiplying, it acts like an integer")
   {
     REQUIRE(Fixed<a>{ 2 } * Fixed<a>{ 3 } == Fixed<a>{ 6 });
@@ -62,6 +79,14 @@ SCENARIO("Fixed supports arithmetic", "[fixed_point]")
       // TODO: test narrowing/rounding errors
       REQUIRE(Fixed<b>{ 10 } == Fixed<a>{ 1 });
       REQUIRE(Fixed<a>{ 1 } == Fixed<b>{ 10 });
+      REQUIRE(Fixed<a>{ 0 } == Fixed<b>{ 0 });
+      REQUIRE(Fixed<b>{ 0 } == Fixed<c>{ 0 });
+      REQUIRE(Fixed<a>{ 20 } > Fixed<b>{ 1 });
+      REQUIRE(Fixed<a>{ 1 } < Fixed<b>{ 20 });
+      REQUIRE(Fixed<a>{ 10 } >= Fixed<b>{ 1 });
+      REQUIRE(Fixed<a>{ 20 } >= Fixed<b>{ 1 });
+      REQUIRE(Fixed<a>{ 1 } <= Fixed<b>{ 10 });
+      REQUIRE(Fixed<a>{ 2 } <= Fixed<b>{ 50 });
     }
   }
 }

@@ -20,7 +20,7 @@ public:
     Money best_price_bid;
     Money best_price_ask;
     Money mid_price;
-    Money quoted_spread;
+    float quoted_spread;
     Money abs_spread;
     int num_orders_bid;
     int num_orders_ask;
@@ -122,7 +122,7 @@ private:
   // [num_orders(bid) + num_orders(ask)]
   [[nodiscard]] Money current_best_price(OrderDir order_dir) const;
   [[nodiscard]] Money mid_price() const;
-  [[nodiscard]] Money quoted_spread() const;
+  [[nodiscard]] float quoted_spread() const;
   [[nodiscard]] Money abs_spread() const;
   [[nodiscard]] int num_orders(OrderDir order_dir) const;
 

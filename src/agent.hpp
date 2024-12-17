@@ -38,7 +38,7 @@ protected:
 
 private:
   int m_id{};
-  Money m_capital{};
+  Money m_capital{ 0 };
   int m_shares{};
   std::string m_type{};
 
@@ -138,9 +138,9 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
   std::bernoulli_distribution place_order_prob(0.75);
   std::bernoulli_distribution bid_prob(0.5);
 
-  std::vector<int> price_offset;
+  std::vector<Money> price_offset;
   std::vector<int> ws;
-  if (4 < ob_state.abs_spread) {
+  if (Money{ 4 } < ob_state.abs_spread) {
     // Weight inwards (negative)
     price_offset = { -2, -1, 0, 1, 2 };
     ws = { 3, 3, 4, 2, 2 };

@@ -47,8 +47,7 @@ private:
   void execute(TransactionRequest trans);
 
   // https://github.com/nlohmann/json/issues/542#issuecomment-290665546
-  friend inline void to_json(nlohmann::json& j,
-                             [[maybe_unused]] const Exchange<PRNG>& exch)
+  friend inline void to_json(nlohmann::json& j, const Exchange<PRNG>& exch)
   {
     j = nlohmann::json{
       { "order_book", exch.m_order_book },

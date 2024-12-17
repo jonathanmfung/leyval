@@ -51,7 +51,7 @@ OrderBook::current_best_price(OrderDir order_dir) const
     return 1;
   }
 
-  Money best_price{};
+  Money best_price{ 0 };
   switch (order_dir) {
     case OrderDir::Bid:
       best_price = std::ranges::max_element(m_bids)->first;
@@ -59,8 +59,10 @@ OrderBook::current_best_price(OrderDir order_dir) const
     case OrderDir::Ask:
       best_price = std::ranges::min_element(m_asks)->first;
       break;
+    default:
+      throw OrderDirInvalidValue("OrderBook::current_best_price");
   }
-  if (!(0 < best_price)) {
+  if (!(Money{ 0 } < best_price)) {
     SPDLOG_ERROR(
       "OrderBook::current_best_price: best_price must be greater than 0 ({})",
       order_dir);
@@ -75,10 +77,10 @@ OrderBook::mid_price() const
 {
   const Money ask{ current_best_price(OrderDir::Ask) };
   const Money bid{ current_best_price(OrderDir::Bid) };
-  return (ask + bid) / 2;
+  return (ask + bid) / Money{2};
 }
 
-[[nodiscard]] Money
+[[nodiscard]] float
 OrderBook::quoted_spread() const
 {
   // Expressed in %.
@@ -87,7 +89,7 @@ OrderBook::quoted_spread() const
   const Money bid{ current_best_price(OrderDir::Bid) };
   const int pct{ 100 };
   // TODO: can this be reframed in terms of abs_spread and mid_price?
-  return pct * 2 * ((ask - bid) / (ask + bid));
+  return pct * 2 * static_cast<float>((ask - bid) / (ask + bid));
 }
 
 [[nodiscard]] Money

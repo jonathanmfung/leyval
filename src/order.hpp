@@ -6,9 +6,13 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include "fixed_point.hpp"
+
 namespace leyval {
 // NOTE: can't use std::strong_ordering with floats
-using Money = int;
+// Money{3} is 3 cents
+// Money{500} is 5 dollars
+using Money = Fixed<-2>;
 const auto now = std::chrono::steady_clock::now;
 using time_point = std::chrono::time_point<std::chrono::steady_clock>;
 
