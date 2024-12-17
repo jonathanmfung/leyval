@@ -32,17 +32,17 @@ namespace leyval {
 std::vector<TransactionRequest>
 MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
 {
+  // const OrderBook::State ob_state{ order_book.update_get_state() };
   SPDLOG_DEBUG("MS Invoke");
   assert(mor.volume > 0 && "MarketOrderReq must be positive");
   // TODO: This falsely throws during an empty init.
-  // if (mor.volume > order_book.num_orders(!mor.order_dir))
-  //   throw std::logic_error(
-  //     std::format("MarketOrderReq.volume({}, {}) must be not greater than
-  //     OrderBook's {}({})",
-  //                 mor.volume,
-  //                 mor.order_dir,
-  //                 !mor.order_dir,
-  //                 order_book.num_orders(!mor.order_dir)));
+  // const int _num_orders{ (mor.order_dir == OrderDir::Bid)
+  //                          ? ob_state.num_orders_ask
+  //                          : ob_state.num_orders_bid };
+  // if (mor.volume > _num_orders)
+  //   throw std::logic_error(std::format("MarketOrderReq.volume({}) must be "
+  //                                      "less than or equal to OrderBook's
+  //                                      ({})", mor.volume, _num_orders));
 
   std::vector<TransactionRequest> trans_reqs{};
   switch (m_type) {

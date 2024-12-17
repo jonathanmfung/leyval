@@ -9,6 +9,7 @@
 ** Usage
 This helps clangd (in emacs/eglot) find system and lib includes.
 #+begin_src bash :noeval
+nix-shell
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 #+end_src
 
