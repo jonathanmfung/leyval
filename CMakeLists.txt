@@ -17,6 +17,7 @@ endif()
 set(HEADERS src/agent.hpp
             src/constants.hpp
             src/exchange.hpp
+	    src/fixed_point.hpp
             src/matching_system.hpp
             src/money.hpp
             src/order.hpp
@@ -51,6 +52,7 @@ install(TARGETS ${PROJECT_NAME})
 find_package(Catch2 3 REQUIRED)
 add_executable(tests test/test_agent.cpp
                      test/test_exchange.cpp
+	             test/test_fixed_point.cpp
                      test/test_matching_system.cpp
                      test/test_money.cpp
                      test/test_order.cpp
