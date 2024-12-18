@@ -30,7 +30,7 @@ struct Fixed
 
   friend inline void to_json(nlohmann::json& j, const Fixed<ScaleExp>& f)
   {
-    j = nlohmann::json{ static_cast<float>(f) };
+    j = nlohmann::json{ f.underlying_value };
     static_assert(Serializable<Fixed<ScaleExp>>);
   }
 };
