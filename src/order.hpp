@@ -63,6 +63,7 @@ struct MarketOrderReq
 {
   int volume{};
   int agent_id{};
+  // An OrderDir::Bid MOR pops the best Ask LimitOrder.
   OrderDir order_dir{};
   time_point timestamp{ now() };
 };

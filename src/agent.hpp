@@ -220,13 +220,13 @@ Agent_JFTaker<PRNG>::generate_order(
   SPDLOG_TRACE("JFTaker::generate_order:: get_id: {}", this->get_id());
 
   std::bernoulli_distribution place_order_prob(0.5);
-  std::bernoulli_distribution bid_prob(0.5);
+  std::bernoulli_distribution buy_prob(0.5);
   std::poisson_distribution volume(2);
 
   std::vector<OrderReq_t> reqs{};
 
   if (place_order_prob(this->m_prng)) {
-    if (bid_prob(this->m_prng)) {
+    if (buy_prob(this->m_prng)) {
       reqs.emplace_back(MarketOrderReq{ .volume = volume(this->m_prng),
                                         .agent_id = this->get_id(),
                                         .order_dir = OrderDir::Bid });

@@ -32,17 +32,8 @@ namespace leyval {
 std::vector<TransactionRequest>
 MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
 {
-  // const OrderBook::State ob_state{ order_book.update_get_state() };
   SPDLOG_DEBUG("MS Invoke");
   assert(mor.volume > 0 && "MarketOrderReq must be positive");
-  // TODO: This falsely throws during an empty init.
-  // const int _num_orders{ (mor.order_dir == OrderDir::Bid)
-  //                          ? ob_state.num_orders_ask
-  //                          : ob_state.num_orders_bid };
-  // if (mor.volume > _num_orders)
-  //   throw std::logic_error(std::format("MarketOrderReq.volume({}) must be "
-  //                                      "less than or equal to OrderBook's
-  //                                      ({})", mor.volume, _num_orders));
 
   std::vector<TransactionRequest> trans_reqs{};
   switch (m_type) {
@@ -50,17 +41,17 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
       // Each share traded needs to recalculate the best price
       for ([[maybe_unused]] const int i : std::views::iota(0, mor.volume)) {
         SPDLOG_TRACE("MS::(FIFO) Loop {}", i);
-        // TODO: Check that order direction is correct
-        // e.g. a Bid MarketOrder actually takes from the Asks LimitOrders
-        auto best_orders{ order_book.orders_at_best_price(mor.order_dir) };
-        Money best_price =
-          best_orders.first->first; // best_orders.first_iterator->key
-                                    // (arbitrarily use first iterator)
 
-        SPDLOG_TRACE("best_orders.first->second: a_id: {}, {}, vol: {}",
-                     best_orders.first->second.agent_id,
-                     best_orders.first->second.order_dir,
-                     best_orders.first->second.volume);
+        const OrderDir contra_dir{ !mor.order_dir };
+        auto best_contra_orders{ order_book.orders_at_best_price(contra_dir) };
+        Money best_price = best_contra_orders.first
+                             ->first; // best_contra_orders.first_iterator->key
+                                      // (arbitrarily use first iterator)
+
+        SPDLOG_TRACE("best_contra_orders.first->second: a_id: {}, {}, vol: {}",
+                     best_contra_orders.first->second.agent_id,
+                     best_contra_orders.first->second.order_dir,
+                     best_contra_orders.first->second.volume);
         SPDLOG_TRACE("MS:: best_price: {}", best_price);
 
         // Pop earliest-timestamp LimitOrderVal at best_price
@@ -69,14 +60,18 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
         };
 
         auto earliest_best_order{ std::min_element(
-          best_orders.first, best_orders.second, early_comp) };
+          best_contra_orders.first, best_contra_orders.second, early_comp) };
 
         SPDLOG_TRACE("earliest_best_order->second.agent_id: {}",
                      earliest_best_order->second.agent_id);
 
-        for (auto it = best_orders.first; it != best_orders.second;) {
+        // TODO: Does this ever fail to prematurely break?
+        // Why would earliest_best_order never be seen in this iteration?
+        // If no break, would the transactionreq even be valid?
+        for (auto it = best_contra_orders.first;
+             it != best_contra_orders.second;) {
           if (it == earliest_best_order) {
-            it = order_book.remove_order(it, mor.order_dir);
+            it = order_book.remove_order(it, contra_dir);
             break;
           } else {
             ++it;
@@ -103,7 +98,7 @@ MatchingSystem::operator()(const MarketOrderReq mor, OrderBook& order_book)
       // excess = total limit size - sum(shares_per_order)
       // if excess > 0: FIFO the excess
 
-      [[maybe_unused]] auto best_orders{ order_book.orders_at_best_price(
+      [[maybe_unused]] auto best_contra_orders{ order_book.orders_at_best_price(
         mor.order_dir) };
       [[maybe_unused]] int total_orders{ 5 };
       [[maybe_unused]] double weight{ static_cast<double>(mor.volume) /

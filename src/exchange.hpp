@@ -109,6 +109,7 @@ Exchange<PRNG>::saturate()
 
   SPDLOG_DEBUG("Exchange::saturate: Gen Bids & Asks");
   // Bids
+  // TODO: maybe the orders that never get deleted in plot are from saturate?
   for ([[maybe_unused]] const int _ :
        std::views::iota(0, n_contracts_per_side)) {
     m_order_book.insert({ .volume = volume(m_prng),

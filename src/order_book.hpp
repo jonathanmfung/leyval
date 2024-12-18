@@ -15,7 +15,6 @@ public:
   // NOTE Assume that any order is valid (i.e. agent has sufficient capital and
   // shares)
 
-  // TODO: State so that only need to calculate values once per timestep
   struct State
   {
     Money best_price_bid;
@@ -45,10 +44,10 @@ public:
     return m_state;
   }
 
-  // TODO: This is only used in MatchingSystem (which runs for every
-  // order_request, every volume [probably add to State]).
-  // Returns pair of iterators to range of best-priced orders. These are able to
-  // mutate the underlying Bid/AskContainer.
+  // Returns pair of iterators to range of best-priced orders.
+  // These are able to mutate the underlying Bid/AskContainer.
+  // This is only used in FIFOMatchingSystem,
+  // (which runs for every MOR * every volume).
   auto orders_at_best_price(OrderDir order_dir)
   {
     switch (order_dir) {
@@ -96,30 +95,38 @@ public:
     }
   }
 
-  auto remove_earliest_order(int agent_id, OrderDir order_dir)
+  void remove_earliest_order(int agent_id, OrderDir order_dir)
   {
     switch (order_dir) {
       case OrderDir::Bid: {
-        // TODO: This probably incorrectly removes m_bids.begin() (vice versa)
-        //       when the agent_id does not actually have any orders
+        bool found{ false };
         auto smallest{ m_bids.begin() };
         for (auto iter{ smallest }; iter != m_bids.end(); ++iter) {
           if ((iter->second.agent_id == agent_id) &&
               (iter->second.timestamp < smallest->second.timestamp)) {
+            found = true;
             smallest = iter;
           }
         }
-        return remove_order(smallest, order_dir);
+        if (found) {
+          remove_order(smallest, order_dir);
+        }
+        break;
       }
       case OrderDir::Ask: {
+        bool found{ false };
         auto smallest{ m_asks.begin() };
         for (auto iter{ smallest }; iter != m_asks.end(); ++iter) {
           if ((iter->second.agent_id == agent_id) &&
               (iter->second.timestamp < smallest->second.timestamp)) {
+            found = true;
             smallest = iter;
           }
         }
-        return remove_order(smallest, order_dir);
+        if (found) {
+          remove_order(smallest, order_dir);
+        }
+        break;
       }
       default:
         throw OrderDirInvalidValue("OrderBook::remove_earliest_order");
