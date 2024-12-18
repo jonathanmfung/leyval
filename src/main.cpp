@@ -13,8 +13,6 @@
 #include "matching_system.hpp"
 #include "order_book.hpp"
 
-// TODO: add Unit Tests (googletest)
-
 int
 main()
 {

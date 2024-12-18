@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <ranges>
 
 #include "order.hpp"
 #include "serializable.hpp"
@@ -59,6 +60,24 @@ public:
     }
   }
 
+  // NOTE: m_bids/bids are different types due to comparator,
+  // so combined function is impossible
+  auto orders_at_agentid_bid(int agent_id)
+  {
+    auto agent_eq = [&](const auto& e) {
+      return e.second.agent_id == agent_id;
+    };
+    return m_bids | std::ranges::views::filter(agent_eq);
+  }
+
+  auto orders_at_agentid_ask(int agent_id)
+  {
+    auto agent_eq = [&](const auto& e) {
+      return e.second.agent_id == agent_id;
+    };
+    return m_asks | std::ranges::views::filter(agent_eq);
+  }
+
   void insert(LimitOrderReq lor);
 
   // order_it is iterator to m_bids/asks
@@ -80,7 +99,7 @@ public:
   {
     switch (order_dir) {
       case OrderDir::Bid: {
-        // TODO: This probably incorrectly removes m_bids.begin()
+        // TODO: This probably incorrectly removes m_bids.begin() (vice versa)
         //       when the agent_id does not actually have any orders
         auto smallest{ m_bids.begin() };
         for (auto iter{ smallest }; iter != m_bids.end(); ++iter) {
@@ -103,6 +122,32 @@ public:
       }
       default:
         throw OrderDirInvalidValue("OrderBook::remove_earliest_order");
+    }
+  }
+
+  auto remove_specific_order(int agent_id, time_point tp, OrderDir order_dir)
+  {
+    switch (order_dir) {
+      case OrderDir::Bid: {
+        for (auto iter{ m_bids.begin() }; iter != m_bids.end(); ++iter) {
+          if ((iter->second.agent_id == agent_id) &&
+              (iter->second.timestamp == tp)) {
+            return remove_order(iter, order_dir);
+          }
+        }
+        return m_bids.end();
+      }
+      case OrderDir::Ask: {
+        for (auto iter{ m_asks.begin() }; iter != m_asks.end(); ++iter) {
+          if ((iter->second.agent_id == agent_id) &&
+              (iter->second.timestamp == tp)) {
+            return remove_order(iter, order_dir);
+          }
+        }
+        return m_asks.end();
+      }
+      default:
+        throw OrderDirInvalidValue("OrderBook::remove_specific_order");
     }
   }
 

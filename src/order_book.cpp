@@ -77,7 +77,7 @@ OrderBook::mid_price() const
 {
   const Money ask{ current_best_price(OrderDir::Ask) };
   const Money bid{ current_best_price(OrderDir::Bid) };
-  return (ask + bid) / Money{2};
+  return (ask + bid) / Money{ 2 };
 }
 
 [[nodiscard]] float
