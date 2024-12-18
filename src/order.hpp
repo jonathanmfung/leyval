@@ -127,21 +127,6 @@ struct fmt::formatter<leyval::LimitOrderReq> : fmt::formatter<std::string_view>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// TODO: Add CancelOrder (remove specific LimitOrder in OrderBook)
-// Just needs a way to uniquely identify LO
-// Should have all same 5 fields as LO, plus self's timestamp
-// All LOs in book should be unique on these 5 fields, mostly due to agent_id
-// and timestamp
-
-// TODO: Agents need to know what Orders they have in OrderBook.
-//       Either memory or query book.
-//         Memory means it would have to sync with transactions
-//         In a simulation tick, the to-be-cancelled order could be matched.
-//           So Exchange.cancel() could fail with a valid CancelOrderReq
-//       Could leverage that multimap.insert inserts at upperbound (multimap is
-//       sorted)
-//         find_if(agent_id_comp) should always return largest bid
-//
 namespace leyval {
 struct CancelOrderReq
 {

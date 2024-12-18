@@ -168,9 +168,28 @@ Exchange<PRNG>::run()
             execute(transaction_request);
           }
         },
+        // TODO: Proper CancelOrder (remove specific LimitOrder in OrderBook)
+        // Just needs a way to uniquely identify LO
+        // Should have all same 5 fields as LO, plus self's timestamp
+        // All LOs in book should be unique on these 5 fields, mostly due to
+        // agent_id and timestamp
+
+        // TODO: Agents need to know what Orders they have in OrderBook.
+        //       Either memory or query book.
+        //         Memory means it would have to sync with transactions
+        //         In a simulation tick, the to-be-cancelled order could be
+        //         matched.
+        //           So Exchange.cancel() could fail with a valid CancelOrderReq
+        //       Could leverage that multimap.insert inserts at upperbound
+        //       (multimap is sorted on key - Money)
+        //         find_if(agent_id_comp) should always return largest bid
+        //
+
         [this](CancelOrderReq& cor) {
           SPDLOG_TRACE("COR Visit");
           m_order_book.remove_earliest_order(cor.agent_id, cor.order_dir);
+          // TODO: m_order_book.remove_specific_order(
+          //   cor.agent_id, cor.lo_timestamp, cor.order_dir);
         } },
       order_request);
   }

@@ -26,10 +26,10 @@ class LeyvalPlotter:
     @staticmethod
     def _read_book(book_json):
         bids = pd.Series([x[1] for x in book_json['bid_counts']],
-                         index = [x[0] for x in book_json['bid_counts']],
+                         index = [x[0][0] for x in book_json['bid_counts']],
                          name='bids')
         asks = pd.Series([x[1] for x in book_json['ask_counts']],
-                         index = [x[0] for x in book_json['ask_counts']],
+                         index = [x[0][0] for x in book_json['ask_counts']],
                          name='asks')
         return pd.concat([bids, asks], keys=['bids', 'asks'])
 
@@ -63,6 +63,8 @@ class LeyvalPlotter:
         asks_hist = ax.bar(x=lp.book_clean.loc[0]['asks'].index, height=lp.book_clean.loc[0]['asks'],
                            color='red', label='Asks', animated=True)
         title = ax.text(x=0.5, y=0.8, s="Tick #0", ha='center', transform=ax.transAxes, animated=True)
+
+        # TODO: Format x-axis labels as decimal (10020 -> 100.20)
 
         # TODO: Add proper title (Simulation Params: n_providers, n_takers)
         def init():

@@ -136,7 +136,9 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
   SPDLOG_TRACE("JFProvider::generate_order:: get_id: {}", this->get_id());
 
   std::bernoulli_distribution place_order_prob(0.75);
-  std::bernoulli_distribution bid_prob(0.5);
+  std::bernoulli_distribution bid_prob(
+    static_cast<float>(ob_state.num_orders_ask) /
+    (ob_state.num_orders_bid + ob_state.num_orders_ask));
 
   std::vector<Money> price_offset;
   std::vector<int> ws;
@@ -159,8 +161,8 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
   if (place_order_prob(this->m_prng)) {
     if (bid_prob(this->m_prng)) {
       // Cancel earliest LO
-      // TODO: For remove_earliest_order, volume + price + lo_ts are not needed
       // TODO: Need a better way for agent to decide cancellation order_dir
+      // TODO: use orders_at_agentid_bid/ask to construct cor
       reqs.emplace_back(
         CancelOrderReq{ .volume = 0,
                         .agent_id = this->get_id(),
