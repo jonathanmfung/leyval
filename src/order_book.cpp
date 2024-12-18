@@ -85,11 +85,8 @@ OrderBook::quoted_spread() const
 {
   // Expressed in %.
   // (x-y)/midpoint == 2(x-y)/(x+y)
-  const Money ask{ current_best_price(OrderDir::Ask) };
-  const Money bid{ current_best_price(OrderDir::Bid) };
   const int pct{ 100 };
-  // TODO: can this be reframed in terms of abs_spread and mid_price?
-  return pct * 2 * static_cast<float>((ask - bid) / (ask + bid));
+  return pct * static_cast<float>(abs_spread() / mid_price());
 }
 
 [[nodiscard]] Money

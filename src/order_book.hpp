@@ -29,6 +29,7 @@ public:
     State(const OrderBook& ob)
       : best_price_bid{ ob.current_best_price(OrderDir::Bid) }
       , best_price_ask{ ob.current_best_price(OrderDir::Ask) }
+      // TODO: can reuse computed best_price_bid/ask
       , mid_price{ ob.mid_price() }
       , quoted_spread{ ob.quoted_spread() }
       , abs_spread{ ob.abs_spread() }
