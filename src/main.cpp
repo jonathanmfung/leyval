@@ -66,5 +66,5 @@ main()
   return 0;
 }
 
-// TODO: Addd methods for candlestick/line chart data generation (open,close,
-// low,high)
+// TODO: Addd methods for candlestick/line chart data generation
+// (open,close, low,high). Need to figure out what "Market Price" means
