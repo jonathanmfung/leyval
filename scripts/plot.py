@@ -41,7 +41,7 @@ class LeyvalPlotter:
         for run_tick in raw_json:
             self._agents_raw.append(self._read_agents(run_tick['agents']))
             self._book_raw.append(self._read_book(run_tick['order_book']))
-        print("READ RAW DATA")
+        print("RAW DATA READ")
 
     def clean_data(self):
         self.agents_clean = pd.concat(self._agents_raw,
@@ -59,9 +59,9 @@ class LeyvalPlotter:
         fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI, layout='constrained')
 
         bids_hist = ax.bar(x=lp.book_clean.loc[0]['bids'].index, height=lp.book_clean.loc[0]['bids'],
-                           color='green', label='Bids', animated=True)
+                           color='green', linewidth=0, label='Bids', animated=True)
         asks_hist = ax.bar(x=lp.book_clean.loc[0]['asks'].index, height=lp.book_clean.loc[0]['asks'],
-                           color='red', label='Asks', animated=True)
+                           color='red', linewidth=0, label='Asks', animated=True)
         title = ax.text(x=0.5, y=0.8, s="Tick #0", ha='center', transform=ax.transAxes, animated=True)
 
         # TODO: Format x-axis labels as decimal (10020 -> 100.20)
@@ -87,9 +87,10 @@ class LeyvalPlotter:
         # TODO: Switch to ImageMagickWriter or FFMpegWriter for performance
         #       https://matplotlib.org/stable/api/animation_api.html#writer-classes
         ani.save(IMG_DIR + "book.gif")
-        print("SAVED PLOT ANIMATION")
+        print("PLOT ANIMATION SAVED")
 
 
+# TODO: Add main block
 lp = LeyvalPlotter(DATA_FILE)
 lp.read_raw()
 lp.clean_data()
