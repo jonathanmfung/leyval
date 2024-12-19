@@ -16,7 +16,6 @@ SCENARIO("Fixed supports arithmetic", "[fixed_point]")
     REQUIRE(Fixed<a>{ 1 } == Fixed<a>{ 1 });
     REQUIRE(Fixed<c>{ -1 } == Fixed<c>{ -1 });
   }
-
   WHEN("comparing, it acts like an integer")
   {
     REQUIRE(Fixed<a>{ 2 } > Fixed<a>{ 1 });
@@ -26,11 +25,17 @@ SCENARIO("Fixed supports arithmetic", "[fixed_point]")
     REQUIRE(Fixed<a>{ 1 } <= Fixed<a>{ 1 });
     REQUIRE(Fixed<a>{ 1 } <= Fixed<a>{ 2 });
   }
-
   WHEN("adding, it acts like an integer")
   {
     REQUIRE(Fixed<a>{ 1 } + Fixed<a>{ 2 } == Fixed<a>{ 3 });
     REQUIRE(Fixed<a>{ 1 } + Fixed<a>{ 20 } == Fixed<a>{ 21 });
+    Fixed<-2> val{ 0 };
+    // TODO: rapidcheck
+    // https://github.com/emil-e/rapidcheck/blob/master/doc/catch.md
+    for (const int i : std::views::iota(1, 200)) {
+      val += Fixed<-2>{ 1 };
+      REQUIRE(val == Fixed<-2>{ i });
+    }
   }
   WHEN("subtracting, it acts like a (signed) integer")
   {
