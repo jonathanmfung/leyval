@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(leyval LANGUAGES CXX)
-set(LIBRARY_NAME ${PROJECT_NAME}lib)
+set(LIBRARY_NAME lib${PROJECT_NAME})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -pedantic-errors")
 set(CMAKE_CXX_STANDARD 20)
