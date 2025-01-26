@@ -63,6 +63,7 @@ Under FIFO (First-in Last-Out), the Market Order gets allocated to the earliest 
 Under Pro-Rata, the Market Order gets split up proportional to the quantity weight of each agent. E.g Agent 1's order constitutes w_1 = Q_1/Q = 20/100 = 20% of the total quantity at this price level. Agent 1's allocation is thus Q_m * w_1 = 5. However Pro-Rata can never be pure, as seen in Agent 2 and 3; their allocations are 12.5 and 7.5, respectively. Quantities must always be integer values, so Agent 2 is rounded up due to FIFO priority.
 
 Under Random, the Market Order is allocated similarly to Pro-Rata, but instead w_1 is interpreted as the probability of 1 share of Q_m being allocated to Agent 1. The two extreme results of this is all of Q_1 being fulfilled or none of Q_1 being fulfilled. The remaining (5 or 25) gets split across Q_2 and Q_3.
+
 * Sources
 ** An Empirical Analysis of the Limit Order Book and the Order Flow in the Paris Bourse
 https://sci-hub.ru/10.1111/j.1540-6261.1995.tb05192.x
@@ -85,6 +86,7 @@ limit order book, but any excess that cannot be executed at that price is
 converted into a limit order at that price rather than being executed at less
 favorable prices by walking up (down) the book.
 #+end_quote
+
 ** Market Simulations with a Matching Engine
 https://open.uct.ac.za/items/574390a1-2466-4128-8920-6261505220e0
 
@@ -113,6 +115,7 @@ Calibration for values of \(N, \delta, \kappa, \nu, \sigma\)
 #+begin_quote page 100
 Agent-based model implementation
 #+end_quote
+
 *** For Any Agent
 Sample from power law distribution: https://stats.stackexchange.com/questions/173242/random-sample-from-power-law-distribution
 
@@ -150,7 +153,6 @@ NOT EXACTLY SURE
 \(m_0 := \text{mid-price at start of day}\)
 \(\sigma := \text{fundamentalists’ value perception uncertainty for the trading day}\)
 
-
 \[ x_m^F = \begin{cases}
        20 & |f - m| \leq \delta m \\
        50 & |f - m| > \delta m
@@ -172,8 +174,6 @@ NOT EXACTLY SURE
        20 & |m - \bar{m}| \leq \delta m \\
        50 & |m - \bar{m}| > \delta m
 \end{cases} \]
-
-
 
 *** For Liquidity Providers (LimitOrders)
 \(\theta := \text{Probability of Placing Ask}\)
