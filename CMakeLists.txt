@@ -57,4 +57,10 @@ add_executable(tests test/test_agent.cpp
 
 target_link_libraries(tests PRIVATE ${LIBRARY_NAME}
                             PRIVATE Catch2::Catch2WithMain)
-install(TARGETS tests)
+include(CTest)
+include(Catch)
+
+# ctest strips some of Catch2 colorso
+catch_discover_tests(tests EXTRA_ARGS --colour-mode ansi)
+
+# install(TARGETS tests)
