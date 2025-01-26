@@ -55,6 +55,15 @@
 	    "inherits": "build-base",
 	    "configurePreset": "release"
 	}
+    ],
+    "testPresets": [
+	{
+	    "name": "test-all",
+	    "displayName": "Test All",
+	    "configurePreset": "debug",
+	    "output": {"outputOnFailure": true},
+	    "execution": {"noTestsAction": "error", "stopOnFailure": true}
+	}
     ]
 
 }
