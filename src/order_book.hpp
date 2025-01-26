@@ -24,6 +24,7 @@ public:
     Money abs_spread;
     int num_orders_bid;
     int num_orders_ask;
+    float imbalance;
 
     State(const OrderBook& ob)
       : best_price_bid{ ob.current_best_price(OrderDir::Bid) }
@@ -34,6 +35,8 @@ public:
       , abs_spread{ ob.abs_spread() }
       , num_orders_bid{ ob.num_orders(OrderDir::Bid) }
       , num_orders_ask{ ob.num_orders(OrderDir::Ask) }
+      // TODO: can reuse computed num_orders_bid/ask
+      , imbalance{ ob.imbalance() }
     {
     }
   };
@@ -171,13 +174,12 @@ private:
 
   State m_state{ update_get_state() };
 
-  // TODO: Maybe imbalance (rho) : [num_orders(bid) - num_orders(ask)] /
-  // [num_orders(bid) + num_orders(ask)]
   [[nodiscard]] Money current_best_price(OrderDir order_dir) const;
   [[nodiscard]] Money mid_price() const;
   [[nodiscard]] float quoted_spread() const;
   [[nodiscard]] Money abs_spread() const;
   [[nodiscard]] int num_orders(OrderDir order_dir) const;
+  [[nodiscard]] float imbalance() const;
 
   friend struct fmt::formatter<OrderBook>;
   friend void to_json(nlohmann::json& j, const OrderBook& order_book);

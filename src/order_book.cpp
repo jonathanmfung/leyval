@@ -110,6 +110,15 @@ OrderBook::num_orders(OrderDir order_dir) const
   }
 }
 
+[[nodiscard]] float
+OrderBook::imbalance() const
+{
+
+  int bids {num_orders(OrderDir::Bid)};
+  int asks{num_orders(OrderDir::Ask)};
+  return (bids - asks) / static_cast<float>(bids + asks);
+}
+
 void
 OrderBook::insert(LimitOrderReq lor)
 {
