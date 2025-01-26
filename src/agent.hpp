@@ -101,6 +101,100 @@ fmt::formatter<leyval::Agent<PRNG>>::format(const leyval::Agent<PRNG>& agent,
 // class Agent_Raberto : public Agent{};
 
 namespace leyval {
+
+template<class PRNG>
+double
+power_law_distribution(float x_m, float alpha, PRNG& prng)
+{
+  // Jericevich Eq 6.2
+  // f(x) = a * x_m^a / x^(a + 1)
+  // F(x) = -(x_m/x)^a
+  // F-1(x) = -x_m/x^(1/a)
+  std::uniform_real_distribution<> unit{ 0.0, 1.0 };
+  double x{ unit(prng) };
+  return -x_m / (std::pow(x, 1.0 / alpha));
+}
+
+double
+calc_alpha(const OrderBook::State& ob_state, const MarketOrderReq& mor)
+{
+  // TODO: Check MOR direction (sell MO is minus)
+  return (mor.order_dir == OrderDir::Bid) ? (1 - ob_state.imbalance / nu)
+                                          : (1 + ob_state.imbalance / nu);
+}
+
+template<class PRNG>
+class Agent_JericevichFundamentalist : public Agent<PRNG>
+{
+public:
+  Agent_JericevichFundamentalist(Money capital, PRNG& prng)
+    : Agent<PRNG>{ capital, "JericevichFundamentalist", prng }
+  {
+  }
+  [[nodiscard]] std::vector<OrderReq_t> generate_order(
+    const OrderBook::State& ob_state) const override;
+
+private:
+  double m_fundamental_value;
+  void update_fundamental_value(double m_0, double variance, PRNG& prng)
+  {
+    // TODO: maybe this is lognormal?
+    m_fundamental_value =
+      m_0 * std::exp(std::normal_distribution<>{ 0, variance }(prng));
+  }
+
+  double calc_xmin(const OrderBook::State& ob_state)
+  {
+    double delta{};
+    return (std::abs(m_fundamental_value - ob_state.mid_price) <=
+            delta * ob_state.mid_price)
+             ? 20
+             : 50;
+  }
+};
+
+template<class PRNG>
+class Agent_JericevichChartist : public Agent<PRNG>
+{
+public:
+  Agent_JericevichChartist(Money capital, PRNG& prng)
+    : Agent<PRNG>{ capital, "JericevichChartist", prng }
+  {
+  }
+  [[nodiscard]] std::vector<OrderReq_t> generate_order(
+    const OrderBook::State& ob_state) const override;
+
+private:
+  double m_ema;
+  double m_tprime;
+  double m_tau;
+  void update_ema(double t, const OrderBook::State& ob_state)
+  {
+    double lambda{ 1 - std::exp(-(t - m_tprime) / m_tau) };
+    m_ema = m_ema + lambda * (ob_state.mid_price - m_ema);
+  }
+
+  double calc_xmin(const OrderBook::State& ob_state)
+  {
+    double delta{};
+    return (std::abs(ob_state.mid_price - m_ema) <= delta * ob_state.mid_price)
+             ? 20
+             : 50;
+  }
+};
+
+template<class PRNG>
+class Agent_JericevichProvider : public Agent<PRNG>
+{
+public:
+  Agent_JericevichProvider(Money capital, PRNG& prng)
+    : Agent<PRNG>{ capital, "JericevichProvider", prng }
+  {
+  }
+  [[nodiscard]] std::vector<OrderReq_t> generate_order(
+    const OrderBook::State& ob_state) const override;
+};
+
 template<class PRNG>
 class Agent_JFProvider : public Agent<PRNG>
 {
@@ -131,6 +225,28 @@ public:
 namespace leyval {
 template<class PRNG>
 [[nodiscard]] std::vector<OrderReq_t>
+Agent_JericevichFundamentalist<PRNG>::generate_order(
+  const OrderBook::State& ob_state) const
+{
+  // TODO: inter-arrival time governed by a truncated exponential distribution
+}
+
+template<class PRNG>
+[[nodiscard]] std::vector<OrderReq_t>
+Agent_JericevichChartist<PRNG>::generate_order(
+  const OrderBook::State& ob_state) const
+{
+}
+
+template<class PRNG>
+[[nodiscard]] std::vector<OrderReq_t>
+Agent_JericevichProvider<PRNG>::generate_order(
+  const OrderBook::State& ob_state) const
+{
+}
+
+template<class PRNG>
+[[nodiscard]] std::vector<OrderReq_t>
 Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
 {
   SPDLOG_TRACE("JFProvider::generate_order:: get_id: {}", this->get_id());
@@ -138,17 +254,17 @@ Agent_JFProvider<PRNG>::generate_order(const OrderBook::State& ob_state) const
   std::bernoulli_distribution place_order_prob(0.75);
   std::bernoulli_distribution bid_prob(
     static_cast<float>(ob_state.num_orders_ask) /
-    (ob_state.num_orders_bid + ob_state.num_orders_ask));
+    static_cast<float>(ob_state.num_orders_bid + ob_state.num_orders_ask));
 
   std::vector<Money> price_offset;
   std::vector<int> ws;
-  if (Money{ 4 } < ob_state.abs_spread) {
+  if (Money{ 150 } < ob_state.abs_spread) {
     // Weight inwards (negative)
-    price_offset = { -2, -1, 0, 1, 2 };
-    ws = { 3, 3, 4, 2, 2 };
+    price_offset = { -2, -1, 0, 1, 2, 3 };
+    ws = { 3, 3, 4, 2, 2, 2 };
   } else {
-    price_offset = { -1, 0, 1, 2, 3 };
-    ws = { 1, 3, 5, 4, 3 };
+    price_offset = { -1, 0, 1, 2, 3, 4, 5 };
+    ws = { 1, 3, 5, 4, 3, 2, 2 };
   }
 
   assert(price_offset.size() == ws.size());
