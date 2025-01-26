@@ -146,8 +146,9 @@ private:
   double calc_xmin(const OrderBook::State& ob_state)
   {
     double delta{};
-    return (std::abs(m_fundamental_value - ob_state.mid_price) <=
-            delta * ob_state.mid_price)
+    return (std::abs(m_fundamental_value -
+                     static_cast<float>(ob_state.mid_price)) <=
+            delta * static_cast<float>(ob_state.mid_price))
              ? 20
              : 50;
   }
@@ -171,13 +172,14 @@ private:
   void update_ema(double t, const OrderBook::State& ob_state)
   {
     double lambda{ 1 - std::exp(-(t - m_tprime) / m_tau) };
-    m_ema = m_ema + lambda * (ob_state.mid_price - m_ema);
+    m_ema = m_ema + lambda * (static_cast<float>(ob_state.mid_price) - m_ema);
   }
 
   double calc_xmin(const OrderBook::State& ob_state)
   {
     double delta{};
-    return (std::abs(ob_state.mid_price - m_ema) <= delta * ob_state.mid_price)
+    return (std::abs(static_cast<float>(ob_state.mid_price) - m_ema) <=
+            delta * static_cast<float>(ob_state.mid_price))
              ? 20
              : 50;
   }
