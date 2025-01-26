@@ -12,9 +12,11 @@ class OrderBook
 public:
   OrderBook() = default;
 
-  // NOTE Assume that any order is valid (i.e. agent has sufficient capital and
+  // NOTE: Assume that any order is valid (i.e. agent has sufficient capital and
   // shares)
 
+  // TODO: Instead of a struct with separate implementation, each method could
+  // check some cache based on internal time stamp
   struct State
   {
     Money best_price_bid;

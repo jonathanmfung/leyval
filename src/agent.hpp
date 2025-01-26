@@ -118,6 +118,8 @@ power_law_distribution(float x_m, float alpha, PRNG& prng)
 double
 calc_alpha(const OrderBook::State& ob_state, const MarketOrderReq& mor)
 {
+  // TODO: Somehow make this a simulation variable
+  constexpr float nu{ 1.55 };
   // TODO: Check MOR direction (sell MO is minus)
   return (mor.order_dir == OrderDir::Bid) ? (1 - ob_state.imbalance / nu)
                                           : (1 + ob_state.imbalance / nu);
@@ -138,7 +140,7 @@ private:
   double m_fundamental_value;
   void update_fundamental_value(double m_0, double variance, PRNG& prng)
   {
-    // TODO: maybe this is lognormal?
+    // TODO: maybe this is the same as lognormal?
     m_fundamental_value =
       m_0 * std::exp(std::normal_distribution<>{ 0, variance }(prng));
   }
@@ -228,7 +230,7 @@ namespace leyval {
 template<class PRNG>
 [[nodiscard]] std::vector<OrderReq_t>
 Agent_JericevichFundamentalist<PRNG>::generate_order(
-  const OrderBook::State& ob_state) const
+  [[maybe_unused]] const OrderBook::State& ob_state) const
 {
   // TODO: inter-arrival time governed by a truncated exponential distribution
 }
@@ -236,14 +238,14 @@ Agent_JericevichFundamentalist<PRNG>::generate_order(
 template<class PRNG>
 [[nodiscard]] std::vector<OrderReq_t>
 Agent_JericevichChartist<PRNG>::generate_order(
-  const OrderBook::State& ob_state) const
+  [[maybe_unused]] const OrderBook::State& ob_state) const
 {
 }
 
 template<class PRNG>
 [[nodiscard]] std::vector<OrderReq_t>
 Agent_JericevichProvider<PRNG>::generate_order(
-  const OrderBook::State& ob_state) const
+  [[maybe_unused]] const OrderBook::State& ob_state) const
 {
 }
 
