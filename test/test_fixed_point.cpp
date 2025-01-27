@@ -29,7 +29,7 @@ SCENARIO("Fixed point supports numberical operations", "[fixed_point]")
     REQUIRE(Fixed<a>{ 1 } + Fixed<a>{ 2 } == Fixed<a>{ 3 });
     REQUIRE(Fixed<a>{ 1 } + Fixed<a>{ 20 } == Fixed<a>{ 21 });
     Fixed<-2> val{ 0 };
-    // TODO: rapidcheck -
+    // TODO: rapidcheck
     // https://github.com/emil-e/rapidcheck/blob/master/doc/catch.md
     for (const int i : std::views::iota(1, 200)) {
       val += Fixed<-2>{ 1 };
