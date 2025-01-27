@@ -108,7 +108,7 @@ public:
         auto smallest{ m_bids.begin() };
         for (auto iter{ smallest }; iter != m_bids.end(); ++iter) {
           if ((iter->second.agent_id == agent_id) &&
-              (iter->second.timestamp < smallest->second.timestamp)) {
+              (iter->second.timestamp <= smallest->second.timestamp)) {
             found = true;
             smallest = iter;
           }
@@ -123,7 +123,7 @@ public:
         auto smallest{ m_asks.begin() };
         for (auto iter{ smallest }; iter != m_asks.end(); ++iter) {
           if ((iter->second.agent_id == agent_id) &&
-              (iter->second.timestamp < smallest->second.timestamp)) {
+              (iter->second.timestamp <= smallest->second.timestamp)) {
             found = true;
             smallest = iter;
           }
