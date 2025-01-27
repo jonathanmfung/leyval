@@ -2,14 +2,13 @@
 
 #include "../src/fixed_point.hpp"
 
-SCENARIO("Fixed supports arithmetic", "[fixed_point]")
+SCENARIO("Fixed point supports numberical operations", "[fixed_point]")
 {
   using namespace leyval;
 
   constexpr int a{ 4 };
   constexpr int b{ 3 };
   constexpr int c{ -3 };
-  constexpr int d{ -4 };
 
   WHEN("equality, it acts like an integer")
   {
@@ -30,12 +29,20 @@ SCENARIO("Fixed supports arithmetic", "[fixed_point]")
     REQUIRE(Fixed<a>{ 1 } + Fixed<a>{ 2 } == Fixed<a>{ 3 });
     REQUIRE(Fixed<a>{ 1 } + Fixed<a>{ 20 } == Fixed<a>{ 21 });
     Fixed<-2> val{ 0 };
-    // TODO: rapidcheck
+    // TODO: rapidcheck -
     // https://github.com/emil-e/rapidcheck/blob/master/doc/catch.md
     for (const int i : std::views::iota(1, 200)) {
       val += Fixed<-2>{ 1 };
       REQUIRE(val == Fixed<-2>{ i });
     }
+  }
+  WHEN("addition assignment, it acts like an integer")
+  {
+    Fixed<a> x{ 1 };
+    Fixed<a> y{ 2 };
+    Fixed<a> z{ 3 };
+    REQUIRE((x += y) == z);
+    REQUIRE(x != Fixed<a>{ 1 });
   }
   WHEN("subtracting, it acts like a (signed) integer")
   {
@@ -44,7 +51,14 @@ SCENARIO("Fixed supports arithmetic", "[fixed_point]")
     REQUIRE(Fixed<a>{ 30 } - Fixed<a>{ -20 } == Fixed<a>{ 50 });
     REQUIRE(Fixed<a>{ -30 } - Fixed<a>{ 20 } == Fixed<a>{ -50 });
   }
-  // TODO: add +=/-=
+  WHEN("subtraction assignment, it acts like an integer")
+  {
+    Fixed<a> x{ 3 };
+    Fixed<a> y{ 2 };
+    Fixed<a> z{ 1 };
+    REQUIRE((x -= y) == z);
+    REQUIRE(x != Fixed<a>{ 3 });
+  }
   WHEN("multiplying, it acts like an integer")
   {
     REQUIRE(Fixed<a>{ 2 } * Fixed<a>{ 3 } == Fixed<a>{ 6 });
@@ -61,6 +75,16 @@ SCENARIO("Fixed supports arithmetic", "[fixed_point]")
     CHECK(Fixed<a>{ 10 } / Fixed<a>{ -2 } == Fixed<a>{ -5 });
     CHECK(Fixed<a>{ -10 } / Fixed<a>{ -2 } == Fixed<a>{ 5 });
   }
+}
+
+SCENARIO("Fixed point utilities", "[fixed_point]")
+{
+  using namespace leyval;
+
+  constexpr int a{ 4 };
+  constexpr int b{ 3 };
+  constexpr int c{ -3 };
+  constexpr int d{ -4 };
 
   THEN("it can be rescaled")
   {
