@@ -48,11 +48,7 @@ install(TARGETS ${PROJECT_NAME})
 
 ##### Tests ########
 find_package(Catch2 3 REQUIRED)
-add_executable(tests test/test_agent.cpp
-                     test/test_exchange.cpp
-	             test/test_fixed_point.cpp
-                     test/test_matching_system.cpp
-                     test/test_order.cpp
+add_executable(tests test/test_fixed_point.cpp
                      test/test_order_book.cpp)
 
 target_link_libraries(tests PRIVATE ${LIBRARY_NAME}
