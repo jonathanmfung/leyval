@@ -75,7 +75,7 @@ public:
     return m_bids | std::ranges::views::filter(agent_eq);
   }
 
-  auto orders_at_agentid_ask(int agent_id)
+  auto orders_at_agentid_ask(int agent_id) const
   {
     auto agent_eq = [&](const auto& e) {
       return e.second.agent_id == agent_id;
@@ -100,7 +100,10 @@ public:
     }
   }
 
-  void remove_earliest_order(int agent_id, OrderDir order_dir)
+  // Returns:
+  //   true  <- earliest order successfully removed
+  //   false <- earliest order not found, thus nothing removed
+  bool remove_earliest_order(int agent_id, OrderDir order_dir)
   {
     switch (order_dir) {
       case OrderDir::Bid: {
@@ -116,7 +119,7 @@ public:
         if (found) {
           remove_order(smallest, order_dir);
         }
-        break;
+        return found;
       }
       case OrderDir::Ask: {
         bool found{ false };
@@ -131,7 +134,7 @@ public:
         if (found) {
           remove_order(smallest, order_dir);
         }
-        break;
+        return found;
       }
       default:
         throw OrderDirInvalidValue("OrderBook::remove_earliest_order");
