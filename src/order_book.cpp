@@ -47,7 +47,7 @@ OrderBook::current_best_price(OrderDir order_dir) const
 {
   // TODO Maybe handle this init case better? optional? don't run on init?
   // Init case
-  if (m_bids.empty() && m_asks.empty()) {
+  if (m_bids.empty() || m_asks.empty()) {
     return 1;
   }
 
