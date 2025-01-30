@@ -49,7 +49,9 @@ install(TARGETS ${PROJECT_NAME})
 ##### Tests ########
 find_package(Catch2 3 REQUIRED)
 add_executable(tests test/test_fixed_point.cpp
-                     test/test_order_book.cpp)
+                     test/test_order_book.cpp
+                     test/test_timer.cpp
+)
 
 target_link_libraries(tests PRIVATE ${LIBRARY_NAME}
                             PRIVATE Catch2::Catch2WithMain)
