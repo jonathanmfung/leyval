@@ -15,4 +15,15 @@ constexpr int price_close_offset{ 1'00 };
 constexpr int price_far_offset{ 2'50 };
 static_assert(price_close_offset < price_far_offset);
 }
+
+namespace simulation_jericevich {
+constexpr float nu{ 1.55 };
+constexpr float taker_lambda_min{ 1.0 };
+constexpr float taker_lambda_val{ 1.5 };
+constexpr float taker_lambda_max{ 2.0 };
+constexpr float provider_lambda_min{ 1.0 };
+constexpr float provider_lambda_val{ 1.5 };
+constexpr float provider_lambda_max{ 2.0 };
+constexpr float fundamentalist_sigma{ 2.0 };
+}
 }
