@@ -4,8 +4,11 @@
 
 #include "serializable.hpp"
 
+#include "constants.hpp"
 #include "order.hpp"
 #include "order_book.hpp"
+#include "util/timer.hpp"
+#include "util/truncated_distribution.hpp"
 
 namespace leyval {
 template<class PRNG>
@@ -93,6 +96,7 @@ fmt::formatter<leyval::Agent<PRNG>>::format(const leyval::Agent<PRNG>& agent,
 
 /////////////////////////////////////
 // https://open.uct.ac.za/items/574390a1-2466-4128-8920-6261505220e0
+// https://github.com/IvanJericevich/IJPCTG-ABMCoinTossX/blob/main/Scripts/ABMVolatilityAuctionProxy.jl
 // class Agent_JericevichFundamentalist : public Agent{};
 // class Agent_JericevichChartist : public Agent{};
 // class Agent_JericevichProvider : public Agent{};
@@ -116,21 +120,60 @@ power_law_distribution(float x_m, float alpha, PRNG& prng)
 }
 
 double
-calc_alpha(const OrderBook::State& ob_state, const MarketOrderReq& mor)
+calc_alpha(const OrderBook::State& ob_state, const OrderDir od)
 {
-  // TODO: Somehow make this a simulation variable
-  constexpr float nu{ 1.55 };
   // TODO: Check MOR direction (sell MO is minus)
-  return (mor.order_dir == OrderDir::Bid) ? (1 - ob_state.imbalance / nu)
-                                          : (1 + ob_state.imbalance / nu);
+  return (od == OrderDir::Bid)
+           ? (1 - ob_state.imbalance / constants::simulation_jericevich::nu)
+           : (1 + ob_state.imbalance / constants::simulation_jericevich::nu);
 }
 
 template<class PRNG>
-class Agent_JericevichFundamentalist : public Agent<PRNG>
+class Agent_JericevichBase : public Agent<PRNG>
+{
+protected:
+  Agent_JericevichBase(Money capital,
+                       std::string type,
+                       PRNG& prng,
+                       float lambda_min,
+                       float lambda_val,
+                       float lambda_max)
+    : Agent_JericevichBase<PRNG>{ capital, type, prng }
+    , m_lambda_min{ lambda_min }
+    , m_lambda_val{ lambda_val }
+    , m_lambda_max{ lambda_max }
+    , m_arrival_dist{ m_lambda_val }
+  {
+  }
+
+  float m_lambda_min;
+  float m_lambda_val;
+  float m_lambda_max;
+
+private:
+  using trunc_exp_dist =
+    TruncatedDistribution<std::exponential_distribution<float>, PRNG>;
+  trunc_exp_dist m_arrival_dist;
+
+protected:
+  Timer m_timer{ [&]() {
+    return static_cast<Timer::num_t>(arrival_dist(this->m_prng));
+  } };
+};
+
+template<class PRNG>
+class Agent_JericevichFundamentalist : public Agent_JericevichBase<PRNG>
 {
 public:
   Agent_JericevichFundamentalist(Money capital, PRNG& prng)
-    : Agent<PRNG>{ capital, "JericevichFundamentalist", prng }
+    : Agent_JericevichBase<PRNG>{
+      capital,
+      "JericevichFundamentalist",
+      prng,
+      constants::simulation_jericevich::taker_lambda_min,
+      constants::simulation_jericevich::taker_lambda_val,
+      constants::simulation_jericevich::taker_lambda_max
+    }
   {
   }
   [[nodiscard]] std::vector<OrderReq_t> generate_order(
@@ -142,7 +185,8 @@ private:
   {
     // TODO: maybe this is the same as lognormal?
     m_fundamental_value =
-      m_0 * std::exp(std::normal_distribution<>{ 0, variance }(prng));
+      m_0 *
+      std::exp(std::normal_distribution<>{ 0, std::pow(variance, 2) }(prng));
   }
 
   double calc_xmin(const OrderBook::State& ob_state)
@@ -157,11 +201,18 @@ private:
 };
 
 template<class PRNG>
-class Agent_JericevichChartist : public Agent<PRNG>
+class Agent_JericevichChartist : public Agent_JericevichBase<PRNG>
 {
 public:
   Agent_JericevichChartist(Money capital, PRNG& prng)
-    : Agent<PRNG>{ capital, "JericevichChartist", prng }
+    : Agent_JericevichBase<PRNG>{
+      capital,
+      "JericevichChartist",
+      prng,
+      constants::simulation_jericevich::taker_lambda_min,
+      constants::simulation_jericevich::taker_lambda_val,
+      constants::simulation_jericevich::taker_lambda_max
+    }
   {
   }
   [[nodiscard]] std::vector<OrderReq_t> generate_order(
@@ -188,11 +239,18 @@ private:
 };
 
 template<class PRNG>
-class Agent_JericevichProvider : public Agent<PRNG>
+class Agent_JericevichProvider : public Agent_JericevichBase<PRNG>
 {
 public:
   Agent_JericevichProvider(Money capital, PRNG& prng)
-    : Agent<PRNG>{ capital, "JericevichProvider", prng }
+    : Agent_JericevichBase<PRNG>{
+      capital,
+      "JericevichProvider",
+      prng,
+      constants::simulation_jericevich::taker_lambda_min,
+      constants::simulation_jericevich::taker_lambda_val,
+      constants::simulation_jericevich::taker_lambda_max
+    }
   {
   }
   [[nodiscard]] std::vector<OrderReq_t> generate_order(
@@ -233,6 +291,29 @@ Agent_JericevichFundamentalist<PRNG>::generate_order(
   [[maybe_unused]] const OrderBook::State& ob_state) const
 {
   // TODO: inter-arrival time governed by a truncated exponential distribution
+
+  std::vector<OrderReq_t> reqs{};
+
+  int m_0{ 0 }; // TODO: implement
+
+  if (this->m_timer.tick_and_check() == 0) {
+    // TODO: reset timer
+    update_fundamental_value(
+      m_0,
+      constants::simulation_jericevich::fundamentalist_sigma,
+      this->m_prng);
+    OrderDir od{ (m_fundamental_value < static_cast<float>(ob_state.mid_price))
+                   ? OrderDir::Ask
+                   : OrderDir::Bid };
+
+    int volume{ power_law_distribution(
+      calc_xmin(ob_state), calc_alpha(ob_state, od), this->m_prng) };
+
+    reqs.emplace_back(MarketOrderReq{
+      .volume = volume, .agent_id = this->get_id(), .order_dir = od });
+  }
+
+  return reqs;
 }
 
 template<class PRNG>
