@@ -6,10 +6,10 @@
 namespace leyval {
 class Timer
 {
+public:
   using num_t = unsigned int;
   using gen_t = std::function<num_t()>;
 
-public:
   explicit Timer(num_t num)
     : Timer{ [=]() { return num; } }
   {
